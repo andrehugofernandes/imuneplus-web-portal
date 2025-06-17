@@ -1,13 +1,32 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+"use client";
+
+import { ThemeProvider } from "../components/ThemeProvider";
+import { Header } from "../components/Header";
+import { HeroSection } from "../components/HeroSection";
+import { 
+  ImpressosSection, 
+  CapacitaSection, 
+  BibliotecaSection, 
+  ImunePlaySection 
+} from "../components/ModuleSection";
+import { Footer } from "../components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <ThemeProvider>
+      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+        <Header />
+        <main>
+          <HeroSection />
+          <ImpressosSection />
+          <CapacitaSection />
+          <BibliotecaSection />
+          <ImunePlaySection />
+        </main>
+        <Footer />
       </div>
-    </div>
+    </ThemeProvider>
   );
 };
 
