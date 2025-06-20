@@ -32,18 +32,18 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
 
   return (
     <div className={cn(
-      "fixed top-0 left-0 z-40 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300",
+      "fixed top-0 left-0 z-40 h-screen bg-white border-r border-gray-200 transition-all duration-300",
       collapsed ? "w-12" : "w-64"
     )}>
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
           {!collapsed && (
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">I+</span>
               </div>
-              <span className="font-bold text-lg text-gray-900 dark:text-white">
+              <span className="font-bold text-lg text-gray-900">
                 IMUNE+
               </span>
             </div>
@@ -71,12 +71,12 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                 className={cn(
                   "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
-                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700",
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-gray-700 hover:bg-gray-100",
                   collapsed && "justify-center"
                 )}
               >
-                <Icon size={20} />
+                <Icon size={collapsed ? 28 : 20} />
                 {!collapsed && (
                   <span className="ml-3">{item.name}</span>
                 )}
