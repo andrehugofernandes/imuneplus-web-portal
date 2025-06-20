@@ -24,7 +24,7 @@ export function ChartsSection() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Line Chart */}
-      <Card className="lg:col-span-8">
+      <Card className="lg:col-span-8 shadow-lg">
         <CardHeader>
           <CardTitle>Visitas por Semana</CardTitle>
         </CardHeader>
@@ -48,7 +48,7 @@ export function ChartsSection() {
       </Card>
 
       {/* Progress Bars */}
-      <Card className="lg:col-span-4">
+      <Card className="lg:col-span-4 shadow-lg">
         <CardHeader>
           <CardTitle>Downloads por Categoria</CardTitle>
           <p className="text-sm text-gray-500">
