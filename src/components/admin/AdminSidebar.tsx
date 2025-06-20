@@ -24,6 +24,7 @@ const menuItems = [
   { name: 'Categorias', icon: FolderTree, route: '/admin/categorias' },
   { name: 'Arquivos', icon: FileText, route: '/admin/arquivos' },
   { name: 'Logs', icon: List, route: '/admin/logs' },
+  { name: 'API Docs', icon: FileText, route: '/admin/api-docs' },
   { name: 'Configurações', icon: Settings, route: '/admin/configuracoes' },
 ];
 
