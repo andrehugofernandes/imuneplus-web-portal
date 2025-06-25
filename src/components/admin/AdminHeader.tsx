@@ -19,15 +19,15 @@ export function AdminHeader() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
+    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
       <div className="flex items-center justify-between">
         {/* Search */}
         <div className="flex items-center space-x-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
             <Input
               placeholder="Buscar..."
-              className="pl-10 w-64"
+              className="pl-10 w-64 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100"
             />
           </div>
         </div>
@@ -39,6 +39,7 @@ export function AdminHeader() {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
+            className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <Sun size={20} className="dark:hidden" />
             <Moon size={20} className="hidden dark:block" />
@@ -47,29 +48,29 @@ export function AdminHeader() {
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <Bell size={20} />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500 text-xs">
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500 text-xs text-white">
                   3
                 </Badge>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <div className="p-4">
-                <h3 className="font-semibold">Notificações</h3>
-                <p className="text-sm text-gray-500">Você tem 3 notificações não lidas</p>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Notificações</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Você tem 3 notificações não lidas</p>
               </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
+              <DropdownMenuItem className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <div className="space-y-1">
                   <div className="font-medium">Novo usuário cadastrado</div>
-                  <div className="text-sm text-gray-500">João Silva se cadastrou no sistema</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">João Silva se cadastrou no sistema</div>
                 </div>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <div className="space-y-1">
                   <div className="font-medium">Upload concluído</div>
-                  <div className="text-sm text-gray-500">5 arquivos foram enviados com sucesso</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">5 arquivos foram enviados com sucesso</div>
                 </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -78,22 +79,22 @@ export function AdminHeader() {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center space-x-2">
+              <Button variant="ghost" className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
                   <User size={16} className="text-white" />
                 </div>
                 <span className="hidden md:block">Admin</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
+            <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+              <DropdownMenuItem asChild className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <Link to="/admin/perfil">Perfil</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <Link to="/admin/conta">Configurações</Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Sair</DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
+              <DropdownMenuItem className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">Sair</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

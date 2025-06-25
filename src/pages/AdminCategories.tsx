@@ -1,43 +1,95 @@
+import { FolderTree, Plus, Edit, Trash2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminCategories() {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Gestão de Categorias
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Organize e gerencie as categorias do sistema
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Gerenciar Categorias
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Organize documentos por categorias e subcategorias
+          </p>
+        </div>
+        <Button className="bg-blue-600 hover:bg-blue-700">
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Categoria
+        </Button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold">Categorias Disponíveis</h2>
-          <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-            Nova Categoria
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {['Documentos', 'Imagens', 'Vídeos', 'Relatórios', 'Formulários'].map((category) => (
-            <div key={category} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-              <h3 className="font-medium text-gray-900 mb-2">{category}</h3>
-              <p className="text-sm text-gray-500 mb-3">
-                {Math.floor(Math.random() * 50)} itens
-              </p>
-              <div className="flex space-x-2">
-                <button className="text-blue-600 hover:text-blue-800 text-sm">
-                  Editar
-                </button>
-                <button className="text-red-600 hover:text-red-800 text-sm">
-                  Excluir
-                </button>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <FolderTree className="h-8 w-8 text-green-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Categorias</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">24</p>
               </div>
             </div>
-          ))}
-        </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <FolderTree className="h-8 w-8 text-blue-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Categorias Ativas</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">18</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <FolderTree className="h-8 w-8 text-purple-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Categorias Inativas</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">6</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Categories List */}
+      <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-gray-900 dark:text-white">Categorias Principais</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {['Imunização Infantil', 'Campanhas', 'Documentação Técnica', 'Treinamentos'].map((category, index) => (
+              <div key={category} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+                <div className="flex items-center space-x-4">
+                  <FolderTree className="h-6 w-6 text-blue-600" />
+                  <div>
+                    <h3 className="font-medium text-gray-900 dark:text-white">{category}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{Math.floor(Math.random() * 50) + 10} arquivos</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                    Ativa
+                  </Badge>
+                  <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-red-600 hover:text-red-700">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

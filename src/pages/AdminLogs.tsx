@@ -1,94 +1,130 @@
+import { List, Filter, Download, AlertCircle, Info, CheckCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminLogs() {
   const logs = [
-    { id: 1, timestamp: '2024-01-20 14:30:25', user: 'admin', action: 'Login realizado', ip: '192.168.1.100', status: 'success' },
-    { id: 2, timestamp: '2024-01-20 14:25:15', user: 'joao.silva', action: 'Upload de arquivo', ip: '192.168.1.101', status: 'success' },
-    { id: 3, timestamp: '2024-01-20 14:20:10', user: 'maria.santos', action: 'Tentativa de login inválido', ip: '192.168.1.102', status: 'error' },
-    { id: 4, timestamp: '2024-01-20 14:15:05', user: 'admin', action: 'Criação de usuário', ip: '192.168.1.100', status: 'success' },
-    { id: 5, timestamp: '2024-01-20 14:10:00', user: 'pedro.costa', action: 'Download de arquivo', ip: '192.168.1.103', status: 'success' },
+    { id: 1, type: 'info', message: 'Usuário admin fez login', time: '10:30:25', date: '2024-06-25' },
+    { id: 2, type: 'warning', message: 'Tentativa de login falhada', time: '10:25:10', date: '2024-06-25' },
+    { id: 3, type: 'success', message: 'Backup realizado com sucesso', time: '09:15:00', date: '2024-06-25' },
+    { id: 4, type: 'error', message: 'Erro na conexão com banco de dados', time: '08:45:30', date: '2024-06-25' },
   ];
+
+  const getLogIcon = (type: string) => {
+    switch (type) {
+      case 'error': return <AlertCircle className="h-4 w-4 text-red-500" />;
+      case 'warning': return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+      case 'success': return <CheckCircle className="h-4 w-4 text-green-500" />;
+      default: return <Info className="h-4 w-4 text-blue-500" />;
+    }
+  };
+
+  const getLogBadge = (type: string) => {
+    const colors = {
+      error: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+      warning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+      success: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+      info: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+    };
+    return colors[type as keyof typeof colors] || colors.info;
+  };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Logs do Sistema
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Monitore todas as atividades e eventos do sistema
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Logs do Sistema
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Monitore atividades e eventos do sistema
+          </p>
+        </div>
+        <div className="flex space-x-2">
+          <Button variant="outline" className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
+            <Filter className="mr-2 h-4 w-4" />
+            Filtrar
+          </Button>
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            <Download className="mr-2 h-4 w-4" />
+            Exportar
+          </Button>
+        </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Atividades Recentes</h2>
-            <div className="flex space-x-2">
-              <select className="px-3 py-1 border border-gray-300 rounded text-sm">
-                <option>Todos os tipos</option>
-                <option>Login</option>
-                <option>Upload</option>
-                <option>Download</option>
-                <option>Erro</option>
-              </select>
-              <button className="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700">
-                Exportar
-              </button>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <List className="h-8 w-8 text-blue-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Logs</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">2,456</p>
+              </div>
             </div>
-          </div>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Timestamp
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Usuário
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ação
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  IP
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {log.timestamp}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {log.user}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {log.action}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {log.ip}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      log.status === 'success' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {log.status === 'success' ? 'Sucesso' : 'Erro'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <AlertCircle className="h-8 w-8 text-red-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Erros</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">128</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <Info className="h-8 w-8 text-yellow-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Alertas</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">512</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <CheckCircle className="h-8 w-8 text-green-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Sucessos</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">1,816</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Logs List */}
+      <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-gray-900 dark:text-white">Logs Recentes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {logs.map((log) => (
+              <div key={log.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+                <div className="flex items-center space-x-4">
+                  {getLogIcon(log.type)}
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">{log.message}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{log.date} às {log.time}</p>
+                  </div>
+                </div>
+                <Badge className={getLogBadge(log.type)}>
+                  {log.type.toUpperCase()}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

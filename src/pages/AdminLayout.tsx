@@ -14,7 +14,7 @@ export default function AdminLayout() {
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
       />
       <div className={`transition-all duration-300 ${
-        sidebarCollapsed ? 'ml-12' : 'ml-64'
+        sidebarCollapsed ? 'ml-16' : 'ml-64'
       }`}>
         <AdminHeader />
         <main className="p-6">

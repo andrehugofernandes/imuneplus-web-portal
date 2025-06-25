@@ -1,88 +1,86 @@
 
+import { Settings, Save, Shield, Mail, Database } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+
 export default function AdminSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           Configurações do Sistema
         </h1>
-        <p className="text-gray-600 mt-2">
-          Configure as preferências e parâmetros do sistema
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Gerencie as configurações gerais da aplicação
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Configurações Gerais</h2>
-          <div className="space-y-4">
+        {/* General Settings */}
+        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle className="flex items-center text-gray-900 dark:text-white">
+              <Settings className="mr-2 h-5 w-5" />
+              Configurações Gerais
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nome do Sistema
-              </label>
-              <input
-                type="text"
-                defaultValue="IMUNE+"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              <Label htmlFor="site-name" className="text-gray-700 dark:text-gray-300">Nome do Site</Label>
+              <Input 
+                id="site-name" 
+                defaultValue="IMUNE+" 
+                className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email de Contato
-              </label>
-              <input
-                type="email"
-                defaultValue="admin@imune.gov.br"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              <Label htmlFor="site-description" className="text-gray-700 dark:text-gray-300">Descrição</Label>
+              <Input 
+                id="site-description" 
+                defaultValue="Sistema de Gestão da Imunização" 
+                className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Fuso Horário
-              </label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                <option>America/Sao_Paulo</option>
-                <option>America/New_York</option>
-                <option>Europe/London</option>
-              </select>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="maintenance" className="text-gray-700 dark:text-gray-300">Modo Manutenção</Label>
+              <Switch id="maintenance" />
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Configurações de Segurança</h2>
-          <div className="space-y-4">
+        {/* Security Settings */}
+        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle className="flex items-center text-gray-900 dark:text-white">
+              <Shield className="mr-2 h-5 w-5" />
+              Segurança
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">
-                Autenticação de dois fatores
-              </span>
-              <button className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                Habilitado
-              </button>
+              <Label htmlFor="two-factor" className="text-gray-700 dark:text-gray-300">Autenticação 2FA</Label>
+              <Switch id="two-factor" />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">
-                Login com sessão única
-              </span>
-              <button className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
-                Desabilitado
-              </button>
+              <Label htmlFor="password-policy" className="text-gray-700 dark:text-gray-300">Política de Senhas Rigorosa</Label>
+              <Switch id="password-policy" defaultChecked />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">
-                Logs de auditoria
-              </span>
-              <button className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                Ativo
-              </button>
+              <Label htmlFor="session-timeout" className="text-gray-700 dark:text-gray-300">Timeout de Sessão</Label>
+              <Switch id="session-timeout" defaultChecked />
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="flex justify-end">
-        <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-          Salvar Alterações
-        </button>
+        <Button className="bg-blue-600 hover:bg-blue-700">
+          <Save className="mr-2 h-4 w-4" />
+          Salvar Configurações
+        </Button>
       </div>
     </div>
   );

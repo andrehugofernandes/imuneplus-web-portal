@@ -34,7 +34,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   return (
     <div className={cn(
       "fixed top-0 left-0 z-40 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300",
-      collapsed ? "w-12" : "w-64"
+      collapsed ? "w-16" : "w-64"
     )}>
       <div className="flex flex-col h-full">
         {/* Header */}
@@ -53,7 +53,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
             variant="ghost"
             size="icon"
             onClick={onToggle}
-            className="h-8 w-8"
+            className="h-8 w-8 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </Button>
@@ -74,12 +74,14 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                   isActive
                     ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
                     : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700",
-                  collapsed && "justify-center"
+                  collapsed && "justify-center px-2"
                 )}
               >
-                <Icon size={collapsed ? 32 : 20} />
+                <div className={cn("flex items-center justify-center", collapsed ? "w-8 h-8" : "w-5 h-5")}>
+                  <Icon size={collapsed ? 24 : 20} className="flex-shrink-0" />
+                </div>
                 {!collapsed && (
-                  <span className="ml-3">{item.name}</span>
+                  <span className="ml-3 whitespace-nowrap">{item.name}</span>
                 )}
               </Link>
             );
