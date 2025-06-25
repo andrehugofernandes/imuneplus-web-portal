@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { Search, Bell, User, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,22 +14,65 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 
 export function AdminHeader() {
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+
   const toggleTheme = () => {
     // Simple theme toggle - in a real app you'd use a theme provider
     document.documentElement.classList.toggle('dark');
   };
 
+  const handleSearchToggle = () => {
+    setSearchExpanded(!searchExpanded);
+    if (!searchExpanded) {
+      // Focus on input after animation
+      setTimeout(() => {
+        const input = document.getElementById('search-input');
+        if (input) input.focus();
+      }, 150);
+    } else {
+      setSearchValue('');
+    }
+  };
+
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-      <div className="flex items-center justify-between">
-        {/* Search */}
+    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 h-[72px]">
+      <div className="flex items-center justify-between h-full">
+        {/* Left side - Search */}
         <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
-            <Input
-              placeholder="Buscar..."
-              className="pl-10 w-64 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100"
-            />
+          <div className="flex items-center">
+            {searchExpanded ? (
+              <div className="relative transition-all duration-300 ease-in-out">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
+                <Input
+                  id="search-input"
+                  placeholder="Buscar..."
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  className="pl-10 w-64 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                  onBlur={() => {
+                    if (!searchValue) {
+                      setSearchExpanded(false);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setSearchExpanded(false);
+                      setSearchValue('');
+                    }
+                  }}
+                />
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSearchToggle}
+                className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <Search size={20} />
+              </Button>
+            )}
           </div>
         </div>
 
