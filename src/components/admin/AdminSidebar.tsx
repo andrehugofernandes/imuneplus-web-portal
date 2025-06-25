@@ -1,4 +1,3 @@
-
 import { 
   BarChart, 
   Users, 
@@ -13,6 +12,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface AdminSidebarProps {
   collapsed: boolean;
@@ -31,6 +31,7 @@ const menuItems = [
 
 export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const location = useLocation();
+  const { themeColors } = useTheme();
 
   return (
     <TooltipProvider>
@@ -43,7 +44,10 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 h-[72px]">
             {!collapsed && (
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div 
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: themeColors.primary }}
+                >
                   <span className="text-white font-bold text-sm">I+</span>
                 </div>
                 <span className="font-bold text-lg text-gray-900 dark:text-white">
@@ -56,6 +60,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
               size="icon"
               onClick={onToggle}
               className="h-8 w-8 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              style={{ color: themeColors.primary }}
             >
               {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
             </Button>
@@ -73,10 +78,11 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                   className={cn(
                     "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                      ? "text-white"
                       : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700",
                     collapsed && "justify-center px-2"
                   )}
+                  style={isActive ? { backgroundColor: themeColors.primary } : {}}
                 >
                   <div className={cn("flex items-center justify-center", collapsed ? "w-8 h-8" : "w-5 h-5")}>
                     <Icon size={24} className="flex-shrink-0" />
