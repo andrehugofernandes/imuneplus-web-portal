@@ -1,4 +1,5 @@
-import { FileText, Upload, Search, Filter } from 'lucide-react';
+
+import { FileText, Upload, Search, Filter, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
