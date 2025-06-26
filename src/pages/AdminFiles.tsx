@@ -1,11 +1,21 @@
-
+import { useState } from 'react';
 import { FileText, Upload, Search, Filter, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { FileUploadForm } from '@/components/admin/FileUploadForm';
 
 export default function AdminFiles() {
+  const [showUploadForm, setShowUploadForm] = useState(false);
+
+  const handleUploadSubmit = (data: any) => {
+    console.log('File upload data:', data);
+    setShowUploadForm(false);
+    // Aqui você adicionaria a lógica para salvar os arquivos
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -17,10 +27,20 @@ export default function AdminFiles() {
             Upload e organização de documentos do sistema
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Upload className="mr-2 h-4 w-4" />
-          Upload de Arquivo
-        </Button>
+        <Sheet open={showUploadForm} onOpenChange={setShowUploadForm}>
+          <SheetTrigger asChild>
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Upload className="mr-2 h-4 w-4" />
+              Upload de Arquivo
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="w-full sm:max-w-2xl">
+            <FileUploadForm 
+              onClose={() => setShowUploadForm(false)}
+              onSubmit={handleUploadSubmit}
+            />
+          </SheetContent>
+        </Sheet>
       </div>
 
       {/* Stats Cards */}
