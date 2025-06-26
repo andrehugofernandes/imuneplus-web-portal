@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { Upload, X, FileText } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Upload, X, FileText, Video, Image, FileIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,15 @@ const categories = [
   'Documentação Técnica',
   'Treinamentos',
   'Relatórios',
-  'Protocolos'
+  'Protocolos',
+  'ImunePlay'
+];
+
+const fileTypes = [
+  { value: 'document', label: 'Documento', extensions: ['.pdf', '.doc', '.docx', '.txt'] },
+  { value: 'image', label: 'Imagem', extensions: ['.jpg', '.jpeg', '.png', '.gif'] },
+  { value: 'video', label: 'Vídeo', extensions: ['.mp4', '.avi', '.mov', '.wmv', '.mkv'] },
+  { value: 'other', label: 'Outros', extensions: ['.xlsx', '.pptx', '.zip'] }
 ];
 
 export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
@@ -29,28 +37,103 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
     title: '',
     description: '',
     category: '',
-    tags: ''
+    tags: '',
+    fileType: ''
   });
+  
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+
+  // Categorias disponíveis baseadas no tipo de arquivo
+  const getAvailableCategories = () => {
+    if (formData.fileType === 'video') {
+      return ['ImunePlay']; // Apenas ImunePlay para vídeos
+    }
+    return categories;
+  };
+
+  // Detecta automaticamente o tipo de arquivo baseado nos arquivos selecionados
+  const detectFileType = (files: File[]) => {
+    if (files.length === 0) return '';
+    
+    const file = files[0];
+    const extension = '.' + file.name.split('.').pop()?.toLowerCase();
+    
+    for (const type of fileTypes) {
+      if (type.extensions.includes(extension)) {
+        return type.value;
+      }
+    }
+    return 'other';
+  };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setSelectedFiles(prev => [...prev, ...files]);
+    
+    // Auto-detecta o tipo de arquivo e ajusta a categoria
+    if (files.length > 0) {
+      const detectedType = detectFileType(files);
+      setFormData(prev => ({
+        ...prev,
+        fileType: detectedType,
+        category: detectedType === 'video' ? 'ImunePlay' : prev.category
+      }));
+    }
   };
 
   const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles(prev => {
+      const newFiles = prev.filter((_, i) => i !== index);
+      // Redetecta o tipo se ainda há arquivos
+      if (newFiles.length > 0) {
+        const detectedType = detectFileType(newFiles);
+        setFormData(prevData => ({
+          ...prevData,
+          fileType: detectedType,
+          category: detectedType === 'video' ? 'ImunePlay' : prevData.category
+        }));
+      } else {
+        setFormData(prevData => ({
+          ...prevData,
+          fileType: '',
+          category: ''
+        }));
+      }
+      return newFiles;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validação adicional para vídeos
+    if (formData.fileType === 'video' && formData.category !== 'ImunePlay') {
+      alert('Arquivos de vídeo devem ser categorizados como ImunePlay.');
+      return;
+    }
+
     const uploadData = {
       ...formData,
       files: selectedFiles
     };
     onSubmit?.(uploadData);
     console.log('Upload data:', uploadData);
+  };
+
+  const getFileIcon = (fileName: string) => {
+    const extension = '.' + fileName.split('.').pop()?.toLowerCase();
+    
+    if (['.mp4', '.avi', '.mov', '.wmv', '.mkv'].includes(extension)) {
+      return <Video className="h-5 w-5 text-red-500" />;
+    }
+    if (['.jpg', '.jpeg', '.png', '.gif'].includes(extension)) {
+      return <Image className="h-5 w-5 text-green-500" />;
+    }
+    if (['.pdf', '.doc', '.docx', '.txt'].includes(extension)) {
+      return <FileText className="h-5 w-5 text-blue-500" />;
+    }
+    return <FileIcon className="h-5 w-5 text-gray-500" />;
   };
 
   return (
@@ -75,7 +158,7 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
                 onChange={handleFileSelect}
                 className="hidden"
                 id="file-upload"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.mp4,.avi,.mov,.wmv,.mkv,.xlsx,.pptx,.zip"
               />
               <label
                 htmlFor="file-upload"
@@ -86,11 +169,30 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
                   Clique para selecionar arquivos ou arraste aqui
                 </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                  PDF, DOC, DOCX, JPG, PNG, TXT (Max. 10MB)
+                  PDF, DOC, DOCX, JPG, PNG, MP4, AVI, MOV, TXT (Max. 50MB)
                 </p>
               </label>
             </div>
           </div>
+
+          {/* File Type Detection */}
+          {formData.fileType && (
+            <div>
+              <Label className="text-gray-700 dark:text-gray-300">Tipo de Arquivo Detectado</Label>
+              <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Tipo: <span className="font-medium">
+                    {fileTypes.find(type => type.value === formData.fileType)?.label}
+                  </span>
+                  {formData.fileType === 'video' && (
+                    <span className="ml-2 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded">
+                      Categoria ImunePlay obrigatória
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Selected Files */}
           {selectedFiles.length > 0 && (
@@ -100,7 +202,7 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
                 {selectedFiles.map((file, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <FileText className="h-5 w-5 text-blue-500" />
+                      {getFileIcon(file.name)}
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{file.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -125,7 +227,7 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
 
           {/* Form Fields */}
           <div>
-            <Label htmlFor="title" className="text-gray-700 dark:text-gray-300">Título</Label>
+            <Label htmlFor="title" className="text-gray-700 dark:text-gray-300">Título *</Label>
             <Input
               id="title"
               value={formData.title}
@@ -149,13 +251,22 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="category" className="text-gray-700 dark:text-gray-300">Categoria</Label>
-            <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+            <Label htmlFor="category" className="text-gray-700 dark:text-gray-300">
+              Categoria *
+              {formData.fileType === 'video' && (
+                <span className="text-xs text-red-500 ml-2">(Apenas ImunePlay para vídeos)</span>
+              )}
+            </Label>
+            <Select 
+              value={formData.category} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+              disabled={formData.fileType === 'video'}
+            >
               <SelectTrigger className="mt-1 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((category) => (
+                {getAvailableCategories().map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
                   </SelectItem>

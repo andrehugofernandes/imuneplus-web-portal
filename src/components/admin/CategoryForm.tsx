@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, X, FolderTree } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,11 +16,25 @@ interface CategoryFormProps {
   editData?: any;
 }
 
-const parentCategories = [
+// Categorias principais disponíveis
+const mainCategories = [
   'Imunização Infantil',
   'Campanhas',
   'Documentação Técnica',
-  'Treinamentos'
+  'Treinamentos',
+  'ImunePlay'
+];
+
+// Simulando categorias existentes para hierarquia
+const existingCategories = [
+  { id: 1, name: 'Imunização Infantil', type: 'parent' },
+  { id: 2, name: 'Campanhas', type: 'parent' },
+  { id: 3, name: 'Documentação Técnica', type: 'parent' },
+  { id: 4, name: 'Treinamentos', type: 'parent' },
+  { id: 5, name: 'ImunePlay', type: 'parent' },
+  { id: 6, name: 'Vacinas 0-2 anos', type: 'child', parentId: 1 },
+  { id: 7, name: 'Vacinas 2-12 anos', type: 'child', parentId: 1 },
+  { id: 8, name: 'Campanhas Sazonais', type: 'child', parentId: 2 },
 ];
 
 export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps) {
@@ -30,14 +44,30 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
     parentCategory: editData?.parentCategory || '',
     isActive: editData?.isActive ?? true,
     color: editData?.color || '#3B82F6',
-    icon: editData?.icon || 'FolderTree'
+    icon: editData?.icon || 'FolderTree',
+    categoryType: editData?.categoryType || 'parent' // parent ou child
   });
 
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
 
+  // Filtra categorias pai disponíveis
+  const availableParentCategories = existingCategories.filter(cat => cat.type === 'parent');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validação: se é categoria filha, deve ter pai
+    if (formData.categoryType === 'child' && !formData.parentCategory) {
+      alert('Categorias filhas devem ter uma categoria pai selecionada.');
+      return;
+    }
+
+    // Validação: se é categoria pai, não pode ter pai
+    if (formData.categoryType === 'parent' && formData.parentCategory) {
+      setFormData(prev => ({ ...prev, parentCategory: '' }));
+    }
+
     onSubmit?.(formData);
     console.log('Category data:', formData);
   };
@@ -48,7 +78,9 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
     { value: 'Shield', label: 'Escudo' },
     { value: 'Heart', label: 'Coração' },
     { value: 'BookOpen', label: 'Livro' },
-    { value: 'Users', label: 'Usuários' }
+    { value: 'Users', label: 'Usuários' },
+    { value: 'Play', label: 'Play (Vídeos)' },
+    { value: 'Monitor', label: 'Monitor' }
   ];
 
   const colorOptions = [
@@ -57,7 +89,8 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
     { value: '#F59E0B', label: 'Amarelo' },
     { value: '#EF4444', label: 'Vermelho' },
     { value: '#8B5CF6', label: 'Roxo' },
-    { value: '#06B6D4', label: 'Ciano' }
+    { value: '#06B6D4', label: 'Ciano' },
+    { value: '#F97316', label: 'Laranja' }
   ];
 
   return (
@@ -100,24 +133,45 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
           </div>
 
           <div>
-            <Label htmlFor="parent" className="text-gray-700 dark:text-gray-300">Categoria Pai (Opcional)</Label>
+            <Label htmlFor="categoryType" className="text-gray-700 dark:text-gray-300">Tipo de Categoria *</Label>
             <Select 
-              value={formData.parentCategory} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, parentCategory: value }))}
+              value={formData.categoryType} 
+              onValueChange={(value) => setFormData(prev => ({ 
+                ...prev, 
+                categoryType: value,
+                parentCategory: value === 'parent' ? '' : prev.parentCategory 
+              }))}
             >
               <SelectTrigger className="mt-1 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">
-                <SelectValue placeholder="Selecione uma categoria pai" />
+                <SelectValue placeholder="Selecione o tipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhuma (Categoria Principal)</SelectItem>
-                {parentCategories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
+                <SelectItem value="parent">Categoria Principal (Pai)</SelectItem>
+                <SelectItem value="child">Subcategoria (Filha)</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {formData.categoryType === 'child' && (
+            <div>
+              <Label htmlFor="parent" className="text-gray-700 dark:text-gray-300">Categoria Pai *</Label>
+              <Select 
+                value={formData.parentCategory} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, parentCategory: value }))}
+              >
+                <SelectTrigger className="mt-1 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">
+                  <SelectValue placeholder="Selecione a categoria pai" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableParentCategories.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -182,7 +236,7 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
             )}
             <Button
               type="submit"
-              disabled={!formData.name}
+              disabled={!formData.name || (formData.categoryType === 'child' && !formData.parentCategory)}
               style={{ 
                 backgroundColor: themeColors.primary,
                 color: textColor,
