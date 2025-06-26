@@ -4,25 +4,34 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useNavigate } from 'react-router-dom';
 
 const actions = [
   {
     label: 'Criar Novo Usuário',
     icon: UserPlus,
+    path: '/admin/usuarios',
   },
   {
     label: 'Fazer Upload',
     icon: FileUp,
+    path: '/admin/arquivos',
   },
   {
     label: 'Criar Categoria',
     icon: FolderPlus,
+    path: '/admin/categorias',
   },
 ];
 
 export function ActionButtons() {
   const { themeColors, isLightColor } = useTheme();
+  const navigate = useNavigate();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+
+  const handleActionClick = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <Card className="shadow-lg">
@@ -50,6 +59,7 @@ export function ActionButtons() {
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = themeColors.primary;
                 }}
+                onClick={() => handleActionClick(action.path)}
               >
                 <Badge 
                   className="p-3 rounded-full"
