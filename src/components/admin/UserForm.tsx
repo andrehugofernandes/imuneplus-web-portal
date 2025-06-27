@@ -13,10 +13,11 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 interface UserFormProps {
   onClose: () => void;
+  onSubmit?: (data: any) => void;
   editData?: any;
 }
 
-export function UserForm({ onClose, editData }: UserFormProps) {
+export function UserForm({ onClose, onSubmit, editData }: UserFormProps) {
   const [formData, setFormData] = useState({
     name: editData?.name || '',
     email: editData?.email || '',
@@ -70,14 +71,17 @@ export function UserForm({ onClose, editData }: UserFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
+    if (onSubmit) {
+      onSubmit(formData);
+    }
     onClose();
   };
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent className="sm:max-w-md overflow-y-auto p-0">
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <div 
-          className="flex items-center justify-between w-full p-6 rounded-t-lg"
+          className="flex items-center justify-between w-full p-4 -m-6 mb-6 rounded-t-lg"
           style={{ 
             backgroundColor: themeColors.primary,
             color: textColor,
@@ -95,7 +99,7 @@ export function UserForm({ onClose, editData }: UserFormProps) {
           </div>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-6 p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">Nome Completo</Label>
             <Input
@@ -187,7 +191,7 @@ export function UserForm({ onClose, editData }: UserFormProps) {
             </Select>
           </div>
 
-          <div className="flex justify-end pt-6">
+          <div className="flex justify-end pt-4">
             <Button 
               type="submit"
               style={{ 
