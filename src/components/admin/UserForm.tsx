@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { User, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -81,7 +81,7 @@ export function UserForm({ onClose, onSubmit, editData }: UserFormProps) {
     <Sheet open={true} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <div 
-          className="flex items-center justify-between w-full p-4 -m-6 mb-6 rounded-t-lg"
+          className="flex items-center justify-between w-full p-4 -m-6 mb-6"
           style={{ 
             backgroundColor: themeColors.primary,
             color: textColor,

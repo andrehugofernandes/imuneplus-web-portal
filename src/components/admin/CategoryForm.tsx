@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface Category {
@@ -18,7 +18,7 @@ interface Category {
 
 interface CategoryFormProps {
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit?: (data: any) => void;
   editData?: any;
 }
 
@@ -45,14 +45,17 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Submitting category data:', formData);
-    onSubmit(formData);
+    if (onSubmit) {
+      onSubmit(formData);
+    }
+    onClose();
   };
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent className="sm:max-w-md overflow-y-auto p-0">
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <div 
-          className="flex items-center justify-between w-full p-6 rounded-t-lg"
+          className="flex items-center justify-between w-full p-4 -m-6 mb-6"
           style={{ 
             backgroundColor: themeColors.primary,
             color: textColor,
@@ -70,7 +73,7 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="categoryName" className="text-gray-700 dark:text-gray-300">Nome da Categoria</Label>
             <Input
@@ -131,7 +134,7 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
             </div>
           </div>
 
-          <div className="flex justify-end pt-6">
+          <div className="flex justify-end pt-4">
             <Button
               type="submit"
               style={{ 

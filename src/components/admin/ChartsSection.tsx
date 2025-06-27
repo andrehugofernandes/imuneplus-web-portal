@@ -100,9 +100,15 @@ export function ChartsSection() {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={visitDataByPeriod[selectedPeriod]}>
+            <LineChart data={visitDataByPeriod[selectedPeriod]} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-              <XAxis dataKey="name" tick={{ fill: textColor }} />
+              <XAxis 
+                dataKey="name" 
+                tick={{ fill: textColor, fontSize: 12 }}
+                angle={selectedPeriod === 'week' ? -45 : 0}
+                textAnchor={selectedPeriod === 'week' ? 'end' : 'middle'}
+                height={selectedPeriod === 'week' ? 60 : 30}
+              />
               <YAxis tick={{ fill: textColor }} />
               <Tooltip 
                 contentStyle={{

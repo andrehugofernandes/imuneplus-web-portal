@@ -1,17 +1,18 @@
 
-import { useState } from 'react';
-import { Upload } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Upload, X, FileText, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface FileUploadFormProps {
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit?: (data: any) => void;
   editData?: any;
 }
 
@@ -23,6 +24,8 @@ export function FileUploadForm({ onClose, onSubmit, editData }: FileUploadFormPr
     file: null as File | null,
   });
 
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
 
@@ -39,17 +42,60 @@ export function FileUploadForm({ onClose, onSubmit, editData }: FileUploadFormPr
     setFormData({ ...formData, file });
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      setFormData({ ...formData, file });
+    }
+  };
+
+  const handleBrowseClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const removeFile = () => {
+    setFormData({ ...formData, file: null });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Submitting file data:', formData);
-    onSubmit(formData);
+    if (onSubmit) {
+      onSubmit(formData);
+    }
+    onClose();
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+    <Sheet open={true} onOpenChange={onClose}>
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <div 
-          className="flex items-center justify-between w-full p-6 rounded-t-lg"
+          className="flex items-center justify-between w-full p-4 -m-6 mb-6"
           style={{ 
             backgroundColor: themeColors.primary,
             color: textColor,
@@ -61,13 +107,13 @@ export function FileUploadForm({ onClose, onSubmit, editData }: FileUploadFormPr
             >
               <Upload className="h-4 w-4" style={{ color: textColor }} />
             </Badge>
-            <h2 className="text-lg font-semibold" style={{ color: textColor }}>
+            <SheetTitle className="text-lg font-semibold" style={{ color: textColor }}>
               {editData ? 'Editar Arquivo' : 'Upload de Arquivo'}
-            </h2>
+            </SheetTitle>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="fileTitle" className="text-gray-700 dark:text-gray-300">Título do Arquivo</Label>
             <Input
@@ -109,26 +155,78 @@ export function FileUploadForm({ onClose, onSubmit, editData }: FileUploadFormPr
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="file" className="text-gray-700 dark:text-gray-300">Arquivo</Label>
-            <Input
-              id="file"
+            <Label className="text-gray-700 dark:text-gray-300">Arquivo</Label>
+            
+            {/* Drag and Drop Area */}
+            <div
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                isDragging
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              {formData.file ? (
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <FileText className="h-8 w-8 text-blue-600" />
+                    <div className="text-left">
+                      <p className="font-medium text-gray-900 dark:text-white">{formData.file.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {formatFileSize(formData.file.size)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={removeFile}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <div>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Arraste e solte seu arquivo aqui ou
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleBrowseClick}
+                      className="mt-2"
+                    >
+                      Escolher arquivo
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Formatos aceitos: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, JPG, PNG, GIF, MP4, AVI
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
               type="file"
               onChange={handleFileChange}
-              className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+              className="hidden"
               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.png,.gif,.mp4,.avi"
               required={!editData}
             />
-            {formData.file && (
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Arquivo selecionado: {formData.file.name}
-              </p>
-            )}
           </div>
 
-          <div className="flex justify-end space-x-2 pt-6">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancelar
-            </Button>
+          <div className="flex justify-end pt-4">
             <Button
               type="submit"
               style={{ 
@@ -146,7 +244,7 @@ export function FileUploadForm({ onClose, onSubmit, editData }: FileUploadFormPr
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 }

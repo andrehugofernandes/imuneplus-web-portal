@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { FileUploadForm } from '@/components/admin/FileUploadForm';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -29,32 +28,23 @@ export default function AdminFiles() {
             Upload e organização de documentos do sistema
           </p>
         </div>
-        <Sheet open={showUploadForm} onOpenChange={setShowUploadForm}>
-          <SheetTrigger asChild>
-            <Button 
-              className="transition-colors"
-              style={{ 
-                backgroundColor: themeColors.primary,
-                color: textColor,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primary;
-              }}
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              Upload de Arquivo
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="w-full sm:max-w-2xl">
-            <FileUploadForm 
-              onClose={() => setShowUploadForm(false)}
-              onSubmit={handleUploadSubmit}
-            />
-          </SheetContent>
-        </Sheet>
+        <Button 
+          onClick={() => setShowUploadForm(true)}
+          className="transition-colors"
+          style={{ 
+            backgroundColor: themeColors.primary,
+            color: textColor,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = themeColors.primary;
+          }}
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          Upload de Arquivo
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -169,6 +159,13 @@ export default function AdminFiles() {
           </div>
         </CardContent>
       </Card>
+
+      {showUploadForm && (
+        <FileUploadForm 
+          onClose={() => setShowUploadForm(false)}
+          onSubmit={handleUploadSubmit}
+        />
+      )}
     </div>
   );
 }

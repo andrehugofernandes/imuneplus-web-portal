@@ -24,7 +24,6 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { themeColors, isLightColor, currentTheme, setTheme, isDarkMode, toggleDarkMode, availableThemes } = useTheme();
-  const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,30 +199,6 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* API Docs Button */}
-          <Link to="/admin/api-docs">
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="border-2 transition-colors"
-              style={{ 
-                borderColor: themeColors.primary,
-                color: themeColors.primary,
-                backgroundColor: 'transparent'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primary;
-                e.currentTarget.style.color = textColor;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = themeColors.primary;
-              }}
-            >
-              API Docs
-            </Button>
-          </Link>
         </div>
       </div>
     </header>
