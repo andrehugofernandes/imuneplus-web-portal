@@ -1,13 +1,13 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface Category {
@@ -31,7 +31,7 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
     isActive: editData?.isActive ?? true,
   });
 
-  const [categories, setCategories] = useState<Category[]>([
+  const [categories] = useState<Category[]>([
     { id: '1', name: 'Imunização Infantil' },
     { id: '2', name: 'Campanhas' },
     { id: '3', name: 'Documentação Técnica' },
@@ -49,35 +49,36 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
   };
 
   return (
-    <Card className="w-full max-w-lg mx-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-      <CardHeader 
-        className="flex flex-row items-center justify-between w-full p-6 rounded-t-lg"
-        style={{ 
-          backgroundColor: themeColors.primary,
-          color: textColor,
-        }}
-      >
-        <div className="flex items-center space-x-3">
-          <Badge 
-            className="h-8 w-8 rounded-full p-0 flex items-center justify-center bg-white/20"
-          >
-            <Folder className="h-4 w-4" style={{ color: textColor }} />
-          </Badge>
-          <CardTitle className="text-lg font-semibold">
-            {editData ? 'Editar Categoria' : 'Nova Categoria'}
-          </CardTitle>
-        </div>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onClose}
-          className="hover:bg-white/20"
-          style={{ color: textColor }}
+    <Sheet open={true} onOpenChange={onClose}>
+      <SheetContent className="sm:max-w-md overflow-y-auto">
+        <div 
+          className="flex items-center justify-between w-full p-4 -m-6 mb-6 rounded-t-lg"
+          style={{ 
+            backgroundColor: themeColors.primary,
+            color: textColor,
+          }}
         >
-          <X className="h-4 w-4" />
-        </Button>
-      </CardHeader>
-      <CardContent className="p-6">
+          <div className="flex items-center space-x-3">
+            <Badge 
+              className="h-8 w-8 rounded-full p-0 flex items-center justify-center bg-white/20"
+            >
+              <Folder className="h-4 w-4" style={{ color: textColor }} />
+            </Badge>
+            <SheetTitle className="text-lg font-semibold" style={{ color: textColor }}>
+              {editData ? 'Editar Categoria' : 'Nova Categoria'}
+            </SheetTitle>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onClose}
+            className="hover:bg-white/20"
+            style={{ color: textColor }}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="categoryName" className="text-gray-700 dark:text-gray-300">Nome da Categoria</Label>
@@ -157,7 +158,7 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </SheetContent>
+    </Sheet>
   );
 }

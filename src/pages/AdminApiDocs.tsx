@@ -1,25 +1,73 @@
-import { FileText, Code, Copy, ExternalLink } from 'lucide-react';
+
+import { useState } from 'react';
+import { Code, Book, Download, Copy, Check } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminApiDocs() {
-  const endpoints = [
-    { method: 'GET', path: '/api/users', description: 'Listar todos os usuários', status: 'active' },
-    { method: 'POST', path: '/api/users', description: 'Criar novo usuário', status: 'active' },
-    { method: 'GET', path: '/api/files', description: 'Listar arquivos', status: 'active' },
-    { method: 'POST', path: '/api/files/upload', description: 'Upload de arquivo', status: 'beta' },
-  ];
+  const [copiedEndpoints, setCopiedEndpoints] = useState<Record<string, boolean>>({});
+  const { themeColors, isLightColor } = useTheme();
+  const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
 
-  const getMethodColor = (method: string) => {
-    const colors = {
-      GET: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-      POST: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-      PUT: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-      DELETE: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-    };
-    return colors[method as keyof typeof colors] || colors.GET;
+  const copyToClipboard = (text: string, endpointId: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedEndpoints({ ...copiedEndpoints, [endpointId]: true });
+    setTimeout(() => {
+      setCopiedEndpoints({ ...copiedEndpoints, [endpointId]: false });
+    }, 2000);
   };
+
+  const endpoints = [
+    {
+      id: 'users',
+      method: 'GET',
+      path: '/api/users',
+      description: 'Listar todos os usuários',
+      response: `{
+  "data": [
+    {
+      "id": 1,
+      "name": "João Silva",
+      "email": "joao@exemplo.com",
+      "role": "Admin"
+    }
+  ]
+}`
+    },
+    {
+      id: 'create-user',
+      method: 'POST',
+      path: '/api/users',
+      description: 'Criar novo usuário',
+      response: `{
+  "message": "Usuário criado com sucesso",
+  "data": {
+    "id": 2,
+    "name": "Maria Santos",
+    "email": "maria@exemplo.com"
+  }
+}`
+    },
+    {
+      id: 'files',
+      method: 'GET',
+      path: '/api/files',
+      description: 'Listar arquivos',
+      response: `{
+  "data": [
+    {
+      "id": 1,
+      "name": "documento.pdf",
+      "size": "2.5MB",
+      "category": "Imunização"
+    }
+  ]
+}`
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -29,12 +77,24 @@ export default function AdminApiDocs() {
             Documentação da API
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Referência completa da API do sistema IMUNE+
+            Documentação completa dos endpoints da API
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <ExternalLink className="mr-2 h-4 w-4" />
-          Swagger UI
+        <Button 
+          className="transition-colors"
+          style={{ 
+            backgroundColor: themeColors.primary,
+            color: textColor,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = themeColors.primary;
+          }}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Baixar OpenAPI
         </Button>
       </div>
 
@@ -43,7 +103,7 @@ export default function AdminApiDocs() {
         <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardContent className="p-6">
             <div className="flex items-center">
-              <FileText className="h-8 w-8 text-blue-600" />
+              <Code className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Endpoints</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">24</p>
@@ -54,10 +114,10 @@ export default function AdminApiDocs() {
         <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardContent className="p-6">
             <div className="flex items-center">
-              <Code className="h-8 w-8 text-green-600" />
+              <Book className="h-8 w-8 text-green-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Endpoints Ativos</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">18</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Versão da API</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">v2.1</p>
               </div>
             </div>
           </CardContent>
@@ -65,65 +125,105 @@ export default function AdminApiDocs() {
         <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardContent className="p-6">
             <div className="flex items-center">
-              <FileText className="h-8 w-8 text-yellow-600" />
+              <Download className="h-8 w-8 text-purple-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Documentação</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">Completa</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Chamadas/mês</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">12.5k</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* API Base URL */}
-      <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-gray-900 dark:text-white">Base URL</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg font-mono text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-900 dark:text-gray-100">https://api.imune.gov.br/v1</span>
-              <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Endpoints */}
+      {/* API Documentation */}
       <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
         <CardHeader>
           <CardTitle className="text-gray-900 dark:text-white">Endpoints Disponíveis</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {endpoints.map((endpoint, index) => (
-              <div key={index} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
-                <div className="flex items-center space-x-4">
-                  <Badge className={getMethodColor(endpoint.method)}>
-                    {endpoint.method}
-                  </Badge>
-                  <div>
-                    <code className="font-mono text-sm text-gray-900 dark:text-gray-100">{endpoint.path}</code>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{endpoint.description}</p>
+          <Tabs defaultValue="users" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="users">Usuários</TabsTrigger>
+              <TabsTrigger value="files">Arquivos</TabsTrigger>
+              <TabsTrigger value="auth">Autenticação</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="users" className="mt-6">
+              <div className="space-y-4">
+                {endpoints.filter(e => e.id.includes('user')).map((endpoint) => (
+                  <div key={endpoint.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <Badge 
+                          className={endpoint.method === 'GET' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}
+                        >
+                          {endpoint.method}
+                        </Badge>
+                        <code className="text-sm font-mono text-gray-900 dark:text-gray-100">{endpoint.path}</code>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(endpoint.path, endpoint.id)}
+                      >
+                        {copiedEndpoints[endpoint.id] ? (
+                          <Check className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-400 mb-3">{endpoint.description}</p>
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded p-3">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Resposta:</p>
+                      <pre className="text-xs text-gray-900 dark:text-gray-100 overflow-x-auto">
+                        {endpoint.response}
+                      </pre>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant={endpoint.status === 'active' ? 'default' : 'secondary'} 
-                         className={endpoint.status === 'active' 
-                           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
-                           : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'}>
-                    {endpoint.status}
-                  </Badge>
-                  <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
-                    <Code className="h-4 w-4" />
-                  </Button>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </TabsContent>
+            
+            <TabsContent value="files" className="mt-6">
+              <div className="space-y-4">
+                {endpoints.filter(e => e.id.includes('files')).map((endpoint) => (
+                  <div key={endpoint.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <Badge className="bg-green-100 text-green-800">{endpoint.method}</Badge>
+                        <code className="text-sm font-mono text-gray-900 dark:text-gray-100">{endpoint.path}</code>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(endpoint.path, endpoint.id)}
+                      >
+                        {copiedEndpoints[endpoint.id] ? (
+                          <Check className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-400 mb-3">{endpoint.description}</p>
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded p-3">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Resposta:</p>
+                      <pre className="text-xs text-gray-900 dark:text-gray-100 overflow-x-auto">
+                        {endpoint.response}
+                      </pre>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="auth" className="mt-6">
+              <div className="text-center py-8">
+                <p className="text-gray-500 dark:text-gray-400">Documentação de autenticação em desenvolvimento</p>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>

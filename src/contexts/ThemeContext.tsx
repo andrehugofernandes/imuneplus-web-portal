@@ -47,6 +47,7 @@ interface ThemeContextType {
   isLightColor: (color: string) => boolean;
   availableThemes: Array<{ name: string; colors: ThemeColors; displayName: string }>;
   isDarkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -82,6 +83,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('app-theme', theme);
   };
 
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   const isLightColor = (color: string) => {
     const hex = color.replace('#', '');
     const r = parseInt(hex.substr(0, 2), 16);
@@ -106,7 +111,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme, 
       isLightColor, 
       availableThemes: availableThemesArray,
-      isDarkMode
+      isDarkMode,
+      toggleDarkMode
     }}>
       {children}
     </ThemeContext.Provider>

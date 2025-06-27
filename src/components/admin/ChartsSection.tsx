@@ -49,6 +49,7 @@ const categoryData = [
 
 function AnimatedProgress({ value, delay = 0 }: { value: number; delay?: number }) {
   const [animatedValue, setAnimatedValue] = useState(0);
+  const { themeColors } = useTheme();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -75,7 +76,17 @@ function AnimatedProgress({ value, delay = 0 }: { value: number; delay?: number 
     return () => clearTimeout(timer);
   }, [value, delay]);
 
-  return <Progress value={animatedValue} className="h-2" />;
+  return (
+    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+      <div 
+        className="h-2 rounded-full transition-all duration-300"
+        style={{ 
+          width: `${animatedValue}%`,
+          backgroundColor: themeColors.primary
+        }}
+      />
+    </div>
+  );
 }
 
 export function ChartsSection() {
@@ -165,9 +176,7 @@ export function ChartsSection() {
                 <span className="font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
                 <span className="text-gray-600 dark:text-gray-400">{item.value}%</span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <AnimatedProgress value={item.value} delay={index * 200} />
-              </div>
+              <AnimatedProgress value={item.value} delay={index * 200} />
             </div>
           ))}
         </CardContent>
