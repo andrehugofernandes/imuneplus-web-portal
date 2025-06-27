@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from 'react';
-import { Plus, X, FolderTree } from 'lucide-react';
+import { useState } from 'react';
+import { X, FolderTree } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,25 +16,12 @@ interface CategoryFormProps {
   editData?: any;
 }
 
-// Categorias principais disponíveis
-const mainCategories = [
-  'Imunização Infantil',
-  'Campanhas',
-  'Documentação Técnica',
-  'Treinamentos',
-  'ImunePlay'
-];
-
-// Simulando categorias existentes para hierarquia
 const existingCategories = [
   { id: 1, name: 'Imunização Infantil', type: 'parent' },
   { id: 2, name: 'Campanhas', type: 'parent' },
   { id: 3, name: 'Documentação Técnica', type: 'parent' },
   { id: 4, name: 'Treinamentos', type: 'parent' },
   { id: 5, name: 'ImunePlay', type: 'parent' },
-  { id: 6, name: 'Vacinas 0-2 anos', type: 'child', parentId: 1 },
-  { id: 7, name: 'Vacinas 2-12 anos', type: 'child', parentId: 1 },
-  { id: 8, name: 'Campanhas Sazonais', type: 'child', parentId: 2 },
 ];
 
 export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps) {
@@ -45,30 +32,29 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
     isActive: editData?.isActive ?? true,
     color: editData?.color || '#3B82F6',
     icon: editData?.icon || 'FolderTree',
-    categoryType: editData?.categoryType || 'parent' // parent ou child
+    categoryType: editData?.categoryType || 'parent'
   });
 
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
 
-  // Filtra categorias pai disponíveis
   const availableParentCategories = existingCategories.filter(cat => cat.type === 'parent');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validação: se é categoria filha, deve ter pai
     if (formData.categoryType === 'child' && !formData.parentCategory) {
       alert('Categorias filhas devem ter uma categoria pai selecionada.');
       return;
     }
 
-    // Validação: se é categoria pai, não pode ter pai
     if (formData.categoryType === 'parent' && formData.parentCategory) {
       setFormData(prev => ({ ...prev, parentCategory: '' }));
     }
 
-    onSubmit?.(formData);
+    if (onSubmit) {
+      onSubmit(formData);
+    }
     console.log('Category data:', formData);
   };
 
@@ -95,18 +81,30 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
 
   return (
     <Card className="w-full max-w-lg mx-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center text-gray-900 dark:text-white">
+      <CardHeader 
+        className="flex flex-row items-center justify-between w-full p-6 rounded-t-lg"
+        style={{ 
+          backgroundColor: themeColors.primary,
+          color: textColor,
+        }}
+      >
+        <CardTitle className="flex items-center text-lg font-semibold">
           <FolderTree className="mr-2 h-5 w-5" />
           {editData ? 'Editar Categoria' : 'Nova Categoria'}
         </CardTitle>
         {onClose && (
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onClose}
+            className="hover:bg-white/20"
+            style={{ color: textColor }}
+          >
             <X className="h-4 w-4" />
           </Button>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">Nome da Categoria *</Label>
@@ -228,12 +226,7 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
             />
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
-            {onClose && (
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancelar
-              </Button>
-            )}
+          <div className="flex justify-end pt-4">
             <Button
               type="submit"
               disabled={!formData.name || (formData.categoryType === 'child' && !formData.parentCategory)}
@@ -248,7 +241,6 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
                 e.currentTarget.style.backgroundColor = themeColors.primary;
               }}
             >
-              <Plus className="mr-2 h-4 w-4" />
               {editData ? 'Atualizar' : 'Criar'} Categoria
             </Button>
           </div>

@@ -1,9 +1,14 @@
+
 import { List, Filter, Download, AlertCircle, Info, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminLogs() {
+  const { themeColors, isLightColor } = useTheme();
+  const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+
   const logs = [
     { id: 1, type: 'info', message: 'Usuário admin fez login', time: '10:30:25', date: '2024-06-25' },
     { id: 2, type: 'warning', message: 'Tentativa de login falhada', time: '10:25:10', date: '2024-06-25' },
@@ -46,7 +51,19 @@ export default function AdminLogs() {
             <Filter className="mr-2 h-4 w-4" />
             Filtrar
           </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            className="transition-colors"
+            style={{ 
+              backgroundColor: themeColors.primary,
+              color: textColor,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = themeColors.primary;
+            }}
+          >
             <Download className="mr-2 h-4 w-4" />
             Exportar
           </Button>
@@ -101,7 +118,6 @@ export default function AdminLogs() {
         </Card>
       </div>
 
-      {/* Logs List */}
       <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
         <CardHeader>
           <CardTitle className="text-gray-900 dark:text-white">Logs Recentes</CardTitle>

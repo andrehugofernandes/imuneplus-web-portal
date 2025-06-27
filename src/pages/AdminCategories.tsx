@@ -6,16 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { CategoryForm } from '@/components/admin/CategoryForm';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminCategories() {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const { themeColors, isLightColor } = useTheme();
+  const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
 
   const handleCategorySubmit = (data: any) => {
     console.log('Category data:', data);
     setShowCategoryForm(false);
     setEditingCategory(null);
-    // Aqui você adicionaria a lógica para salvar a categoria
   };
 
   const handleEditCategory = (category: any) => {
@@ -84,7 +86,19 @@ export default function AdminCategories() {
         </div>
         <Sheet open={showCategoryForm} onOpenChange={setShowCategoryForm}>
           <SheetTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <Button 
+              className="transition-colors"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                color: textColor,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = themeColors.primary;
+              }}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Nova Categoria
             </Button>
@@ -150,7 +164,6 @@ export default function AdminCategories() {
         </Card>
       </div>
 
-      {/* Categories Hierarchy */}
       <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
         <CardHeader>
           <CardTitle className="text-gray-900 dark:text-white">Hierarquia de Categorias</CardTitle>
@@ -159,7 +172,6 @@ export default function AdminCategories() {
           <div className="space-y-4">
             {categoriesHierarchy.map((category) => (
               <div key={category.id} className="space-y-2">
-                {/* Categoria Principal */}
                 <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50">
                   <div className="flex items-center space-x-4">
                     <FolderTree className="h-6 w-6 text-blue-600" />
@@ -193,7 +205,6 @@ export default function AdminCategories() {
                   </div>
                 </div>
 
-                {/* Subcategorias */}
                 {category.children.map((child) => (
                   <div key={child.id} className="flex items-center justify-between p-3 ml-8 border border-gray-200 dark:border-gray-600 rounded-lg">
                     <div className="flex items-center space-x-4">

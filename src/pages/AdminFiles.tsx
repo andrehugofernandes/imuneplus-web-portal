@@ -6,14 +6,16 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { FileUploadForm } from '@/components/admin/FileUploadForm';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminFiles() {
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const { themeColors, isLightColor } = useTheme();
+  const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
 
   const handleUploadSubmit = (data: any) => {
     console.log('File upload data:', data);
     setShowUploadForm(false);
-    // Aqui você adicionaria a lógica para salvar os arquivos
   };
 
   return (
@@ -29,7 +31,19 @@ export default function AdminFiles() {
         </div>
         <Sheet open={showUploadForm} onOpenChange={setShowUploadForm}>
           <SheetTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <Button 
+              className="transition-colors"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                color: textColor,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = themeColors.primary;
+              }}
+            >
               <Upload className="mr-2 h-4 w-4" />
               Upload de Arquivo
             </Button>
@@ -108,7 +122,19 @@ export default function AdminFiles() {
               <Filter className="mr-2 h-4 w-4" />
               Filtros
             </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <Button 
+              className="transition-colors"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                color: textColor,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = themeColors.primary;
+              }}
+            >
               <Search className="mr-2 h-4 w-4" />
               Buscar
             </Button>

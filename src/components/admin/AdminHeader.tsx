@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Search, Bell, User, Sun, Moon, Palette } from 'lucide-react';
+import { Search, Bell, User, Sun, Moon, Palette, Settings, LogOut, UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -40,12 +40,10 @@ export function AdminHeader() {
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 h-[72px]">
       <div className="flex items-center justify-between h-full">
-        {/* Left side - Empty for now */}
         <div className="flex items-center space-x-4">
           {/* Reserved for future content */}
         </div>
 
-        {/* Right side */}
         <div className="flex items-center space-x-4">
           {/* Search */}
           <div className="flex items-center">
@@ -149,16 +147,22 @@ export function AdminHeader() {
               <DropdownMenuLabel className="text-gray-900 dark:text-gray-100">Minha Conta</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
               <DropdownMenuItem asChild className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                <Link to="/admin/perfil">Perfil</Link>
+                <Link to="/admin/perfil" className="flex items-center">
+                  <UserIcon size={16} className="mr-2" />
+                  Perfil
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                <Link to="/admin/conta">Configurações</Link>
+                <Link to="/admin/conta" className="flex items-center">
+                  <Settings size={16} className="mr-2" />
+                  Configurações
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-gray-900 dark:text-gray-100 flex items-center">
                   <Palette size={16} className="mr-2" />
-                  Temas
+                  Skins
                 </DropdownMenuLabel>
                 {Object.entries(availableThemes).map(([key, theme]) => (
                   <DropdownMenuItem
@@ -183,6 +187,7 @@ export function AdminHeader() {
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
               <DropdownMenuItem className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                <LogOut size={16} className="mr-2" />
                 Sair
               </DropdownMenuItem>
             </DropdownMenuContent>

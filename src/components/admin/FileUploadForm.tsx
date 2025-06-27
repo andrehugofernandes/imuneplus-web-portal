@@ -44,15 +44,13 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
 
-  // Categorias disponíveis baseadas no tipo de arquivo
   const getAvailableCategories = () => {
     if (formData.fileType === 'video') {
-      return ['ImunePlay']; // Apenas ImunePlay para vídeos
+      return ['ImunePlay'];
     }
     return categories;
   };
 
-  // Detecta automaticamente o tipo de arquivo baseado nos arquivos selecionados
   const detectFileType = (files: File[]) => {
     if (files.length === 0) return '';
     
@@ -71,7 +69,6 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
     const files = Array.from(event.target.files || []);
     setSelectedFiles(prev => [...prev, ...files]);
     
-    // Auto-detecta o tipo de arquivo e ajusta a categoria
     if (files.length > 0) {
       const detectedType = detectFileType(files);
       setFormData(prev => ({
@@ -85,7 +82,6 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
   const removeFile = (index: number) => {
     setSelectedFiles(prev => {
       const newFiles = prev.filter((_, i) => i !== index);
-      // Redetecta o tipo se ainda há arquivos
       if (newFiles.length > 0) {
         const detectedType = detectFileType(newFiles);
         setFormData(prevData => ({
@@ -107,7 +103,6 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validação adicional para vídeos
     if (formData.fileType === 'video' && formData.category !== 'ImunePlay') {
       alert('Arquivos de vídeo devem ser categorizados como ImunePlay.');
       return;
@@ -117,7 +112,9 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
       ...formData,
       files: selectedFiles
     };
-    onSubmit?.(uploadData);
+    if (onSubmit) {
+      onSubmit(uploadData);
+    }
     console.log('Upload data:', uploadData);
   };
 
@@ -138,15 +135,27 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
 
   return (
     <Card className="w-full max-w-2xl mx-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-gray-900 dark:text-white">Upload de Arquivos</CardTitle>
+      <CardHeader 
+        className="flex flex-row items-center justify-between w-full p-6 rounded-t-lg"
+        style={{ 
+          backgroundColor: themeColors.primary,
+          color: textColor,
+        }}
+      >
+        <CardTitle className="text-lg font-semibold">Upload de Arquivos</CardTitle>
         {onClose && (
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onClose}
+            className="hover:bg-white/20"
+            style={{ color: textColor }}
+          >
             <X className="h-4 w-4" />
           </Button>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* File Selection */}
           <div>
@@ -175,7 +184,6 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
             </div>
           </div>
 
-          {/* File Type Detection */}
           {formData.fileType && (
             <div>
               <Label className="text-gray-700 dark:text-gray-300">Tipo de Arquivo Detectado</Label>
@@ -194,7 +202,6 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
             </div>
           )}
 
-          {/* Selected Files */}
           {selectedFiles.length > 0 && (
             <div>
               <Label className="text-gray-700 dark:text-gray-300">Arquivos Selecionados</Label>
@@ -225,7 +232,6 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
             </div>
           )}
 
-          {/* Form Fields */}
           <div>
             <Label htmlFor="title" className="text-gray-700 dark:text-gray-300">Título *</Label>
             <Input
@@ -286,12 +292,7 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
             />
           </div>
 
-          <div className="flex justify-end space-x-3">
-            {onClose && (
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancelar
-              </Button>
-            )}
+          <div className="flex justify-end">
             <Button
               type="submit"
               disabled={selectedFiles.length === 0 || !formData.title || !formData.category}
