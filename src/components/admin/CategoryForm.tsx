@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { X, Folder } from 'lucide-react';
+import { Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -50,9 +50,9 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent className="sm:max-w-md overflow-y-auto">
+      <SheetContent className="sm:max-w-md overflow-y-auto p-0">
         <div 
-          className="flex items-center justify-between w-full p-4 -m-6 mb-6 rounded-t-lg"
+          className="flex items-center justify-between w-full p-6 rounded-t-lg"
           style={{ 
             backgroundColor: themeColors.primary,
             color: textColor,
@@ -68,18 +68,9 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
               {editData ? 'Editar Categoria' : 'Nova Categoria'}
             </SheetTitle>
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={onClose}
-            className="hover:bg-white/20"
-            style={{ color: textColor }}
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 p-6">
           <div className="space-y-2">
             <Label htmlFor="categoryName" className="text-gray-700 dark:text-gray-300">Nome da Categoria</Label>
             <Input

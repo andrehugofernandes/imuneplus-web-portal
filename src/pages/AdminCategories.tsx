@@ -5,14 +5,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from '@/components/ui/pagination';
 import { CategoryForm } from '@/components/admin/CategoryForm';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminCategories() {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+
+  const itemsPerPage = 3;
+  const totalPages = 2;
 
   const handleCategorySubmit = (data: any) => {
     console.log('Category data:', data);
@@ -73,6 +85,11 @@ export default function AdminCategories() {
     }
   ];
 
+  const paginatedCategories = categoriesHierarchy.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -103,7 +120,7 @@ export default function AdminCategories() {
               Nova Categoria
             </Button>
           </SheetTrigger>
-          <SheetContent>
+          {showCategoryForm && (
             <CategoryForm 
               onClose={() => {
                 setShowCategoryForm(false);
@@ -112,7 +129,7 @@ export default function AdminCategories() {
               onSubmit={handleCategorySubmit}
               editData={editingCategory}
             />
-          </SheetContent>
+          )}
         </Sheet>
       </div>
 
@@ -170,7 +187,7 @@ export default function AdminCategories() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {categoriesHierarchy.map((category) => (
+            {paginatedCategories.map((category) => (
               <div key={category.id} className="space-y-2">
                 <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50">
                   <div className="flex items-center space-x-4">
@@ -241,6 +258,52 @@ export default function AdminCategories() {
                 ))}
               </div>
             ))}
+          </div>
+
+          {/* Pagination */}
+          <div className="mt-6 flex justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage > 1) setCurrentPage(currentPage - 1);
+                    }}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      isActive={currentPage === page}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(page);
+                      }}
+                      style={currentPage === page ? {
+                        backgroundColor: themeColors.primary,
+                        color: textColor
+                      } : {}}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext 
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                    }}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         </CardContent>
       </Card>

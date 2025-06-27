@@ -1,28 +1,43 @@
 
 import { useState } from 'react';
-import { Bell, Search, User, Settings, Palette, LogOut, Menu, Sun, Moon } from 'lucide-react';
+import { Bell, Search, Sun, Moon, Menu, User, Settings, LogOut, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
   DropdownMenuTrigger,
+  DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Link } from 'react-router-dom';
 
 interface AdminHeaderProps {
   onToggleSidebar: () => void;
 }
 
 export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
-  const [notificationCount] = useState(3);
-  const [searchExpanded, setSearchExpanded] = useState(false);
-  const { themeColors, setTheme, availableThemes, currentTheme, isDarkMode, toggleDarkMode } = useTheme();
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { themeColors, isLightColor, currentTheme, setTheme, isDarkMode, toggleDarkMode, availableThemes } = useTheme();
+  const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Searching for:', searchTerm);
+    setSearchVisible(false);
+    setSearchTerm('');
+  };
+
+  const notifications = [
+    { id: 1, title: 'Novo usuário cadastrado', time: '5 min atrás' },
+    { id: 2, title: 'Upload de documento concluído', time: '10 min atrás' },
+    { id: 3, title: 'Sistema atualizado', time: '1 hora atrás' },
+  ];
 
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
@@ -32,154 +47,183 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
             variant="ghost"
             size="icon"
             onClick={onToggleSidebar}
-            className="lg:hidden"
+            className="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <Menu className="h-5 w-5" />
           </Button>
           
-          <div className="relative flex items-center">
-            {searchExpanded ? (
-              <div className="flex items-center space-x-2">
-                <Input
-                  placeholder="Buscar..."
-                  className="w-64 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100"
-                  autoFocus
-                  onBlur={() => setSearchExpanded(false)}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSearchExpanded(false)}
-                >
-                  <Search className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSearchExpanded(true)}
-              >
-                <Search className="h-5 w-5" />
-              </Button>
-            )}
-          </div>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Dashboard Administrativo
+          </h1>
         </div>
 
         <div className="flex items-center space-x-4">
+          {/* Search */}
+          {searchVisible ? (
+            <form onSubmit={handleSearch} className="flex items-center">
+              <Input
+                type="text"
+                placeholder="Buscar..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-64"
+                autoFocus
+                onBlur={() => {
+                  if (!searchTerm) setSearchVisible(false);
+                }}
+              />
+            </form>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSearchVisible(true)}
+              className="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+          )}
+
           {/* Theme Toggle */}
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleDarkMode}
+            className="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
 
+          {/* Theme Selector */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <div 
+                  className="w-5 h-5 rounded-full border-2 border-gray-300"
+                  style={{ backgroundColor: themeColors.primary }}
+                />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <DropdownMenuLabel className="text-gray-900 dark:text-white">Escolher Tema</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {availableThemes.map((theme) => (
+                <DropdownMenuItem
+                  key={theme.name}
+                  onClick={() => setTheme(theme.name)}
+                  className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                  <div className="flex items-center space-x-2">
+                    <div 
+                      className="w-4 h-4 rounded-full border border-gray-300"
+                      style={{ backgroundColor: theme.colors.primary }}
+                    />
+                    <span>{theme.displayName}</span>
+                  </div>
+                  {currentTheme === theme.name && <Check className="h-4 w-4 text-green-600" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <Bell className="h-5 w-5" />
-                {notificationCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-red-500 text-white">
-                    {notificationCount}
-                  </Badge>
-                )}
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white">
+                  3
+                </Badge>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-900 dark:text-white">Notificações</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Você tem 3 notificações não lidas</p>
-              </div>
+            <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <DropdownMenuLabel className="text-gray-900 dark:text-white">Notificações</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div className="space-y-1">
-                  <div className="font-medium">Novo usuário cadastrado</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">João Silva se cadastrou no sistema</div>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div className="space-y-1">
-                  <div className="font-medium">Upload concluído</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">5 arquivos foram enviados com sucesso</div>
-                </div>
+              {notifications.map((notification) => (
+                <DropdownMenuItem 
+                  key={notification.id} 
+                  className="flex flex-col items-start p-4 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <span className="font-medium text-gray-900 dark:text-white">{notification.title}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{notification.time}</span>
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-center text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                Ver todas as notificações
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback 
-                    className="text-white"
-                    style={{ backgroundColor: themeColors.primary }}
-                  >
-                    AD
-                  </AvatarFallback>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="/placeholder-avatar.jpg" alt="Avatar" />
+                  <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white">AD</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
+            <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal text-gray-900 dark:text-white">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none text-gray-900 dark:text-gray-100">Administrador</p>
-                  <p className="text-xs leading-none text-muted-foreground">
+                  <p className="text-sm font-medium leading-none">Administrador</p>
+                  <p className="text-xs leading-none text-gray-500 dark:text-gray-400">
                     admin@imune.gov.br
                   </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                <span>Perfil</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Configurações</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              
-              <DropdownMenuLabel className="text-gray-900 dark:text-gray-100">
-                <div className="flex items-center">
-                  <Palette className="mr-2 h-4 w-4" />
-                  <span>Skins</span>
-                </div>
-              </DropdownMenuLabel>
-              {availableThemes.map((theme) => (
-                <DropdownMenuItem
-                  key={theme.name}
-                  onClick={() => setTheme(theme.name)}
-                  className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+              <DropdownMenuItem asChild>
+                <Link 
+                  to="/admin/perfil" 
+                  className="flex items-center text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  <div className="flex items-center w-full justify-between">
-                    <div className="flex items-center">
-                      <div
-                        className="w-4 h-4 rounded-full mr-3"
-                        style={{ backgroundColor: theme.colors.primary }}
-                      />
-                      <span className={currentTheme === theme.name ? 'font-semibold' : ''}>
-                        {theme.displayName}
-                      </span>
-                    </div>
-                    {currentTheme === theme.name && (
-                      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    )}
-                  </div>
-                </DropdownMenuItem>
-              ))}
-              
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Meu Perfil</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link 
+                  to="/admin/conta" 
+                  className="flex items-center text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Configurações da Conta</span>
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer">
+              <DropdownMenuItem className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Sair</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* API Docs Button */}
+          <Link to="/admin/api-docs">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="border-2 transition-colors"
+              style={{ 
+                borderColor: themeColors.primary,
+                color: themeColors.primary,
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = themeColors.primary;
+                e.currentTarget.style.color = textColor;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = themeColors.primary;
+              }}
+            >
+              API Docs
+            </Button>
+          </Link>
         </div>
       </div>
     </header>
