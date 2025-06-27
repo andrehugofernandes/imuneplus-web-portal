@@ -77,12 +77,11 @@ export function StatsCards() {
               </CardTitle>
               <div className="relative">
                 <Badge 
-                  className="absolute -top-1 -right-1 h-6 w-6 rounded-full p-0 flex items-center justify-center"
+                  className="h-12 w-12 rounded-full p-0 flex items-center justify-center"
                   style={{ backgroundColor: themeColors.primary }}
                 >
-                  <Icon className="h-3 w-3 text-white" />
+                  <Icon className="h-6 w-6 text-white" />
                 </Badge>
-                <Icon className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardHeader>
             <CardContent>

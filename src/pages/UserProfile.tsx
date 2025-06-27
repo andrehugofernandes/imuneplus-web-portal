@@ -19,32 +19,34 @@ export default function UserProfile() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-          <div className="text-center">
-            <div 
-              className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ backgroundColor: themeColors.primary }}
-            >
-              <User size={40} className="text-white" />
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <div 
+                className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4"
+                style={{ backgroundColor: themeColors.primary }}
+              >
+                <User size={40} className="text-white" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
+                Administrador
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">admin@imune.gov.br</p>
+              <button 
+                className="px-4 py-2 rounded-lg transition-colors"
+                style={{ 
+                  backgroundColor: themeColors.primary,
+                  color: textColor,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = themeColors.primary;
+                }}
+              >
+                Alterar Foto
+              </button>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
-              Administrador
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">admin@imune.gov.br</p>
-            <button 
-              className="px-4 py-2 rounded-lg transition-colors"
-              style={{ 
-                backgroundColor: themeColors.primary,
-                color: textColor,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primary;
-              }}
-            >
-              Alterar Foto
-            </button>
           </div>
         </div>
 

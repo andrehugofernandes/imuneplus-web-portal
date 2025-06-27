@@ -35,39 +35,39 @@ export default function AdminUsers() {
             Gerencie os usuários do sistema
           </p>
         </div>
-        <Sheet open={showUserForm} onOpenChange={setShowUserForm}>
-          <SheetTrigger asChild>
-            <Button 
-              className="transition-colors"
-              style={{ 
-                backgroundColor: themeColors.primary,
-                color: textColor,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primary;
-              }}
-            >
-              <UserPlus className="mr-2 h-4 w-4" />
-              Novo Usuário
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <UserForm 
-              onClose={() => {
-                setShowUserForm(false);
-                setEditingUser(null);
-              }}
-              onSubmit={handleUserSubmit}
-              editData={editingUser}
-            />
-          </SheetContent>
-        </Sheet>
+        <Button 
+          onClick={() => setShowUserForm(true)}
+          className="transition-colors"
+          style={{ 
+            backgroundColor: themeColors.primary,
+            color: textColor,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = themeColors.primary;
+          }}
+        >
+          <UserPlus className="mr-2 h-4 w-4" />
+          Novo Usuário
+        </Button>
       </div>
 
       <UsersTable />
+      
+      {showUserForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <UserForm 
+            onClose={() => {
+              setShowUserForm(false);
+              setEditingUser(null);
+            }}
+            onSubmit={handleUserSubmit}
+            editData={editingUser}
+          />
+        </div>
+      )}
     </div>
   );
 }

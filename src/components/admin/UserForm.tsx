@@ -1,11 +1,12 @@
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, User, Key, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface UserFormProps {
@@ -23,8 +24,36 @@ export function UserForm({ onClose, onSubmit, editData }: UserFormProps) {
     status: editData?.status || 'Ativo',
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState('');
+
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+
+  const generateStrongPassword = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setFormData({ ...formData, password });
+    checkPasswordStrength(password);
+  };
+
+  const checkPasswordStrength = (password: string) => {
+    if (password.length < 6) {
+      setPasswordStrength('Fraca');
+    } else if (password.length >= 8 && /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)) {
+      setPasswordStrength('Forte');
+    } else {
+      setPasswordStrength('Fraca');
+    }
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setFormData({ ...formData, password: value });
+    checkPasswordStrength(value);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,9 +69,16 @@ export function UserForm({ onClose, onSubmit, editData }: UserFormProps) {
           color: textColor,
         }}
       >
-        <CardTitle className="text-lg font-semibold">
-          {editData ? 'Editar Usuário' : 'Novo Usuário'}
-        </CardTitle>
+        <div className="flex items-center space-x-3">
+          <Badge 
+            className="h-8 w-8 rounded-full p-0 flex items-center justify-center bg-white/20"
+          >
+            <User className="h-4 w-4" style={{ color: textColor }} />
+          </Badge>
+          <CardTitle className="text-lg font-semibold">
+            {editData ? 'Editar Usuário' : 'Novo Usuário'}
+          </CardTitle>
+        </div>
         <Button 
           variant="ghost" 
           size="icon" 
@@ -82,16 +118,50 @@ export function UserForm({ onClose, onSubmit, editData }: UserFormProps) {
 
           {!editData && (
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="Digite a senha"
-                className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100"
-                required
-              />
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">Senha</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={generateStrongPassword}
+                  className="text-xs"
+                >
+                  <Key className="h-3 w-3 mr-1" />
+                  Gerar Senha Forte
+                </Button>
+              </div>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(e) => handlePasswordChange(e.target.value)}
+                  placeholder="Digite a senha"
+                  className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 pr-10"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-400" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-400" />
+                  )}
+                </Button>
+              </div>
+              {formData.password && (
+                <div className="text-xs">
+                  Senha: <span className={passwordStrength === 'Forte' ? 'text-green-600' : 'text-red-600'}>
+                    {passwordStrength}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
@@ -104,8 +174,6 @@ export function UserForm({ onClose, onSubmit, editData }: UserFormProps) {
               <SelectContent>
                 <SelectItem value="Admin">Administrador</SelectItem>
                 <SelectItem value="Editor">Editor</SelectItem>
-                <SelectItem value="Visualizador">Visualizador</SelectItem>
-                <SelectItem value="Coordenador">Coordenador</SelectItem>
               </SelectContent>
             </Select>
           </div>
