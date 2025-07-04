@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { FileText, Upload, Search, Filter, Download } from 'lucide-react';
+import { FileText, Upload, Search, Filter, Download, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,12 +10,41 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminFiles() {
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [files, setFiles] = useState([
+    { id: 1, name: 'Documento 1.pdf', uploadDate: '2024-01-15', type: 'PDF', size: '2.4 MB' },
+    { id: 2, name: 'Documento 2.pdf', uploadDate: '2024-01-10', type: 'PDF', size: '1.8 MB' },
+    { id: 3, name: 'Apresentação 1.pptx', uploadDate: '2024-01-08', type: 'PPTX', size: '5.2 MB' },
+  ]);
+  
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
 
   const handleUploadSubmit = (data: any) => {
     console.log('File upload data:', data);
     setShowUploadForm(false);
+  };
+
+  const handleDeleteFile = (fileId: number) => {
+    if (window.confirm('Tem certeza que deseja deletar este arquivo?')) {
+      setFiles(prevFiles => prevFiles.filter(file => file.id !== fileId));
+      console.log(`Arquivo ${fileId} deletado`);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
+  const getTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const uploadDate = new Date(dateString);
+    const diffTime = Math.abs(now.getTime() - uploadDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return 'há 1 dia';
+    if (diffDays < 7) return `há ${diffDays} dias`;
+    if (diffDays < 30) return `há ${Math.floor(diffDays / 7)} semanas`;
+    return `há ${Math.floor(diffDays / 30)} meses`;
   };
 
   return (
@@ -55,7 +85,7 @@ export default function AdminFiles() {
               <FileText className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Arquivos</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">1,234</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{files.length}</p>
               </div>
             </div>
           </CardContent>
@@ -139,19 +169,32 @@ export default function AdminFiles() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+            {files.map((file) => (
+              <div key={file.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
                 <div className="flex items-center space-x-4">
                   <FileText className="h-8 w-8 text-blue-600" />
                   <div>
-                    <h3 className="font-medium text-gray-900 dark:text-white">Documento {item}.pdf</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Enviado há 2 horas</p>
+                    <h3 className="font-medium text-gray-900 dark:text-white">{file.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {getTimeAgo(file.uploadDate)} • {file.size}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">PDF</Badge>
+                  <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                    {file.type}
+                  </Badge>
                   <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
+                    <Download className="h-4 w-4 mr-1" />
                     Baixar
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-red-200 dark:border-red-600 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                    onClick={() => handleDeleteFile(file.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>

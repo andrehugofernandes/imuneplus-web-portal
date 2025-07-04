@@ -16,7 +16,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminCategories() {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
-  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingCategory, setEditingCategory] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
@@ -26,13 +26,19 @@ export default function AdminCategories() {
 
   const handleCategorySubmit = (data: any) => {
     console.log('Category submitted:', data);
-    // Here you would typically make an API call to save the category
     setShowCategoryForm(false);
     setEditingCategory(null);
   };
 
   const handleEditCategory = (category: any) => {
-    setEditingCategory(category);
+    console.log('Editing category:', category);
+    setEditingCategory({
+      name: category.name,
+      description: category.description || '',
+      parentId: category.parentId || '',
+      color: category.color || '#0037C1',
+      isActive: category.isActive ?? true,
+    });
     setShowCategoryForm(true);
   };
 
@@ -47,9 +53,11 @@ export default function AdminCategories() {
       name: 'Imunização Infantil',
       type: 'parent',
       filesCount: 45,
+      color: '#0037C1',
+      description: 'Categoria para documentos relacionados à imunização infantil',
       children: [
-        { id: 6, name: 'Vacinas 0-2 anos', type: 'child', filesCount: 25 },
-        { id: 7, name: 'Vacinas 2-12 anos', type: 'child', filesCount: 20 }
+        { id: 6, name: 'Vacinas 0-2 anos', type: 'child', filesCount: 25, parentId: 1, color: '#4169E1', description: 'Vacinas para crianças de 0 a 2 anos' },
+        { id: 7, name: 'Vacinas 2-12 anos', type: 'child', filesCount: 20, parentId: 1, color: '#6495ED', description: 'Vacinas para crianças de 2 a 12 anos' }
       ]
     },
     {
@@ -57,9 +65,11 @@ export default function AdminCategories() {
       name: 'Campanhas',
       type: 'parent',
       filesCount: 32,
+      color: '#32CD32',
+      description: 'Documentos de campanhas de vacinação',
       children: [
-        { id: 8, name: 'Campanhas Sazonais', type: 'child', filesCount: 18 },
-        { id: 9, name: 'Campanhas Especiais', type: 'child', filesCount: 14 }
+        { id: 8, name: 'Campanhas Sazonais', type: 'child', filesCount: 18, parentId: 2, color: '#90EE90', description: 'Campanhas sazonais de vacinação' },
+        { id: 9, name: 'Campanhas Especiais', type: 'child', filesCount: 14, parentId: 2, color: '#98FB98', description: 'Campanhas especiais de vacinação' }
       ]
     },
     {
@@ -67,6 +77,8 @@ export default function AdminCategories() {
       name: 'Documentação Técnica',
       type: 'parent',
       filesCount: 28,
+      color: '#FF6347',
+      description: 'Documentos técnicos e manuais',
       children: []
     },
     {
@@ -74,6 +86,8 @@ export default function AdminCategories() {
       name: 'Treinamentos',
       type: 'parent',
       filesCount: 15,
+      color: '#FFD700',
+      description: 'Materiais de treinamento',
       children: []
     },
     {
@@ -81,9 +95,11 @@ export default function AdminCategories() {
       name: 'ImunePlay',
       type: 'parent',
       filesCount: 8,
+      color: '#9370DB',
+      description: 'Conteúdo educativo interativo',
       children: [
-        { id: 10, name: 'Vídeos Educativos', type: 'child', filesCount: 5 },
-        { id: 11, name: 'Animações', type: 'child', filesCount: 3 }
+        { id: 10, name: 'Vídeos Educativos', type: 'child', filesCount: 5, parentId: 5, color: '#DA70D6', description: 'Vídeos educativos sobre vacinação' },
+        { id: 11, name: 'Animações', type: 'child', filesCount: 3, parentId: 5, color: '#DDA0DD', description: 'Animações educativas' }
       ]
     }
   ];
@@ -180,12 +196,17 @@ export default function AdminCategories() {
               <div key={category.id} className="space-y-2">
                 <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50">
                   <div className="flex items-center space-x-4">
+                    <div 
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: category.color }}
+                    />
                     <FolderTree className="h-6 w-6 text-blue-600" />
                     <div>
                       <h3 className="font-medium text-gray-900 dark:text-white">{category.name}</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         {category.filesCount} arquivos • {category.children.length} subcategorias
                       </p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{category.description}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -196,12 +217,14 @@ export default function AdminCategories() {
                       variant="outline" 
                       size="sm" 
                       className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300"
-                      onClick={() => handleEditCategory({ 
-                        name: category.name, 
-                        description: '', 
+                      onClick={() => handleEditCategory({
+                        name: category.name,
+                        description: category.description,
+                        color: category.color,
                         isActive: true,
-                        categoryType: 'parent'
+                        parentId: ''
                       })}
+                      title={`Editar categoria: ${category.name}`}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -215,10 +238,15 @@ export default function AdminCategories() {
                   <div key={child.id} className="flex items-center justify-between p-3 ml-8 border border-gray-200 dark:border-gray-600 rounded-lg">
                     <div className="flex items-center space-x-4">
                       <ChevronRight className="h-4 w-4 text-gray-400" />
+                      <div 
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: child.color }}
+                      />
                       <FolderTree className="h-5 w-5 text-gray-600" />
                       <div>
                         <h4 className="text-sm font-medium text-gray-900 dark:text-white">{child.name}</h4>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{child.filesCount} arquivos</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{child.description}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -229,13 +257,14 @@ export default function AdminCategories() {
                         variant="outline" 
                         size="sm" 
                         className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300"
-                        onClick={() => handleEditCategory({ 
-                          name: child.name, 
-                          description: '', 
+                        onClick={() => handleEditCategory({
+                          name: child.name,
+                          description: child.description,
+                          color: child.color,
                           isActive: true,
-                          categoryType: 'child',
-                          parentCategory: category.name
+                          parentId: category.id.toString()
                         })}
+                        title={`Editar subcategoria: ${child.name}`}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
