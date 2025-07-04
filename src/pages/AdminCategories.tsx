@@ -43,6 +43,7 @@ export default function AdminCategories() {
   };
 
   const handleNewCategory = () => {
+    console.log('Creating new category');
     setEditingCategory(null);
     setShowCategoryForm(true);
   };

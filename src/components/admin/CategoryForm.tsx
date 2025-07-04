@@ -55,9 +55,6 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
     console.log('Submitting category data:', formData);
     if (onSubmit) {
       onSubmit(formData);
-    } else {
-      // Fallback if onSubmit is not provided
-      console.log('Category created successfully:', formData);
     }
     onClose();
   };
