@@ -1,20 +1,18 @@
 
 import { useState } from 'react';
-import { Users, FolderTree, Upload, UserPlus, Plus } from 'lucide-react';
+import { Users, Upload, FolderTree, BarChart3, FileText, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { UserForm } from '@/components/admin/UserForm';
 import { CategoryForm } from '@/components/admin/CategoryForm';
-import { FileUploadForm } from '@/components/admin/FileUploadForm';
 import { useTheme } from '@/contexts/ThemeContext';
+import { FileUploadForm } from '@/components/admin/FileUploadForm';
 
 export function ActionButtons() {
   const [showUserForm, setShowUserForm] = useState(false);
-  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [showCategoryForm, setCategoryForm] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const { themeColors, isLightColor } = useTheme();
-
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
 
   const handleUserSubmit = (data: any) => {
@@ -24,7 +22,7 @@ export function ActionButtons() {
 
   const handleCategorySubmit = (data: any) => {
     console.log('Category data:', data);
-    setShowCategoryForm(false);
+    setCategoryForm(false);
   };
 
   const handleUploadSubmit = (data: any) => {
@@ -33,94 +31,90 @@ export function ActionButtons() {
   };
 
   return (
-    <Card className="shadow-lg">
-      <CardHeader>
-        <CardTitle>Ações Rápidas</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Sheet open={showUserForm} onOpenChange={setShowUserForm}>
-            <SheetTrigger asChild>
-              <Button 
-                className="h-20 flex flex-col items-center space-y-2 transition-colors"
-                style={{ 
-                  backgroundColor: themeColors.primary,
-                  color: textColor,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = themeColors.primaryHover;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = themeColors.primary;
-                }}
-              >
-                <UserPlus size={24} />
-                <span>Criar Usuário</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <UserForm 
-                onClose={() => setShowUserForm(false)}
-                onSubmit={handleUserSubmit}
-              />
-            </SheetContent>
-          </Sheet>
+    <>
+      <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 animate-fade-in">
+        <CardHeader>
+          <CardTitle className="flex items-center text-gray-900 dark:text-white">
+            <BarChart3 className="mr-2 h-5 w-5" />
+            Ações Rápidas
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+              onClick={() => setShowUserForm(true)}
+            >
+              <Users className="h-6 w-6 text-blue-600" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Novo Usuário</span>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+              onClick={() => setShowUploadForm(true)}
+            >
+              <Upload className="h-6 w-6 text-green-600" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Upload Arquivo</span>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+              onClick={() => setCategoryForm(true)}
+            >
+              <FolderTree className="h-6 w-6 text-purple-600" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Nova Categoria</span>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              <FileText className="h-6 w-6 text-orange-600" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Relatório</span>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              <Calendar className="h-6 w-6 text-red-600" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Agendar</span>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              <BarChart3 className="h-6 w-6 text-indigo-600" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">Analytics</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-          <Sheet open={showCategoryForm} onOpenChange={setShowCategoryForm}>
-            <SheetTrigger asChild>
-              <Button 
-                className="h-20 flex flex-col items-center space-y-2 transition-colors"
-                style={{ 
-                  backgroundColor: themeColors.primary,
-                  color: textColor,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = themeColors.primaryHover;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = themeColors.primary;
-                }}
-              >
-                <FolderTree size={24} />
-                <span>Nova Categoria</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <CategoryForm 
-                onClose={() => setShowCategoryForm(false)}
-                onSubmit={handleCategorySubmit}
-              />
-            </SheetContent>
-          </Sheet>
+      {showUserForm && (
+        <UserForm 
+          onClose={() => setShowUserForm(false)}
+          onSubmit={handleUserSubmit}
+        />
+      )}
 
-          <Sheet open={showUploadForm} onOpenChange={setShowUploadForm}>
-            <SheetTrigger asChild>
-              <Button 
-                className="h-20 flex flex-col items-center space-y-2 transition-colors"
-                style={{ 
-                  backgroundColor: themeColors.primary,
-                  color: textColor,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = themeColors.primaryHover;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = themeColors.primary;
-                }}
-              >
-                <Upload size={24} />
-                <span>Upload de Arquivo</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent className="w-full sm:max-w-2xl">
-              <FileUploadForm 
-                onClose={() => setShowUploadForm(false)}
-                onSubmit={handleUploadSubmit}
-              />
-            </SheetContent>
-          </Sheet>
-        </div>
-      </CardContent>
-    </Card>
+      {showCategoryForm && (
+        <CategoryForm
+          onClose={() => setCategoryForm(false)}
+          onSubmit={handleCategorySubmit}
+        />
+      )}
+
+      {showUploadForm && (
+        <FileUploadForm 
+          onClose={() => setShowUploadForm(false)}
+          onSubmit={handleUploadSubmit}
+        />
+      )}
+    </>
   );
 }

@@ -1,10 +1,18 @@
-
+import { useState } from 'react';
 import { User, Mail, Phone, MapPin, Calendar } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { ProfilePhotoForm } from '@/components/admin/ProfilePhotoForm';
 
 export default function UserProfile() {
+  const [showPhotoForm, setShowPhotoForm] = useState(false);
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+
+  const handlePhotoSubmit = (photo: File) => {
+    console.log('Photo submitted:', photo);
+    // Here you would typically upload the photo to your server
+    setShowPhotoForm(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -43,6 +51,7 @@ export default function UserProfile() {
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = themeColors.primary;
                 }}
+                onClick={() => setShowPhotoForm(true)}
               >
                 Alterar Foto
               </button>
@@ -183,6 +192,13 @@ export default function UserProfile() {
           </div>
         </div>
       </div>
+
+      {showPhotoForm && (
+        <ProfilePhotoForm 
+          onClose={() => setShowPhotoForm(false)}
+          onSubmit={handlePhotoSubmit}
+        />
+      )}
     </div>
   );
 }

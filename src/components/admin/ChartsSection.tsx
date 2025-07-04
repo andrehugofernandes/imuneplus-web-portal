@@ -146,13 +146,15 @@ export function ChartsSection() {
                 <span className="font-medium text-gray-900 dark:text-white">{item.label}</span>
                 <span className="text-gray-900 dark:text-white">{item.value}%</span>
               </div>
-              <Progress 
-                value={item.value} 
-                className="h-2"
-                style={{
-                  '--progress-background': themeColors.primary
-                } as React.CSSProperties}
-              />
+              <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                <div 
+                  className="h-full transition-all duration-300 ease-in-out rounded-full"
+                  style={{
+                    width: `${item.value}%`,
+                    backgroundColor: themeColors.primary
+                  }}
+                />
+              </div>
             </div>
           ))}
         </CardContent>
