@@ -1,10 +1,8 @@
-
 import { useState } from 'react';
 import { FolderTree, Plus, Edit, Trash2, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { 
   Pagination, 
   PaginationContent, 
@@ -27,7 +25,8 @@ export default function AdminCategories() {
   const totalPages = 2;
 
   const handleCategorySubmit = (data: any) => {
-    console.log('Category data:', data);
+    console.log('Category submitted:', data);
+    // Here you would typically make an API call to save the category
     setShowCategoryForm(false);
     setEditingCategory(null);
   };
@@ -37,7 +36,11 @@ export default function AdminCategories() {
     setShowCategoryForm(true);
   };
 
-  // Categorias com hierarquia
+  const handleNewCategory = () => {
+    setEditingCategory(null);
+    setShowCategoryForm(true);
+  };
+
   const categoriesHierarchy = [
     {
       id: 1,
@@ -101,39 +104,25 @@ export default function AdminCategories() {
             Organize documentos por categorias e subcategorias
           </p>
         </div>
-        <Sheet open={showCategoryForm} onOpenChange={setShowCategoryForm}>
-          <SheetTrigger asChild>
-            <Button 
-              className="transition-colors"
-              style={{ 
-                backgroundColor: themeColors.primary,
-                color: textColor,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = themeColors.primary;
-              }}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Nova Categoria
-            </Button>
-          </SheetTrigger>
-          {showCategoryForm && (
-            <CategoryForm 
-              onClose={() => {
-                setShowCategoryForm(false);
-                setEditingCategory(null);
-              }}
-              onSubmit={handleCategorySubmit}
-              editData={editingCategory}
-            />
-          )}
-        </Sheet>
+        <Button 
+          onClick={handleNewCategory}
+          className="transition-colors"
+          style={{ 
+            backgroundColor: themeColors.primary,
+            color: textColor,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = themeColors.primary;
+          }}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Categoria
+        </Button>
       </div>
 
-      {/* Stats section */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardContent className="p-6">
@@ -260,7 +249,6 @@ export default function AdminCategories() {
             ))}
           </div>
 
-          {/* Pagination */}
           <div className="mt-6 flex justify-center">
             <Pagination>
               <PaginationContent>
@@ -307,6 +295,17 @@ export default function AdminCategories() {
           </div>
         </CardContent>
       </Card>
+
+      {showCategoryForm && (
+        <CategoryForm 
+          onClose={() => {
+            setShowCategoryForm(false);
+            setEditingCategory(null);
+          }}
+          onSubmit={handleCategorySubmit}
+          editData={editingCategory}
+        />
+      )}
     </div>
   );
 }
