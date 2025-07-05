@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface Category {
@@ -34,7 +34,7 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
   const [formData, setFormData] = useState<CategoryFormData>({
     name: editData?.name || '',
     description: editData?.description || '',
-    parentId: editData?.parentId || '',
+    parentId: editData?.parentId || 'none',
     color: editData?.color || '#0037C1',
     isActive: editData?.isActive ?? true,
   });
@@ -53,8 +53,15 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Submitting category data:', formData);
+    
+    // Convert 'none' back to empty string for submission
+    const submitData = {
+      ...formData,
+      parentId: formData.parentId === 'none' ? '' : formData.parentId
+    };
+    
     if (onSubmit) {
-      onSubmit(formData);
+      onSubmit(submitData);
     }
     onClose();
   };
@@ -84,6 +91,10 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
             </SheetTitle>
           </div>
         </div>
+        
+        <SheetDescription className="sr-only">
+          {editData ? 'Formulário para edição de categoria existente' : 'Formulário para criação de nova categoria'}
+        </SheetDescription>
 
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -124,7 +135,7 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
                   <SelectValue placeholder="Selecione uma categoria pai" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600">
-                  <SelectItem value="">Nenhuma (Categoria Raiz)</SelectItem>
+                  <SelectItem value="none">Nenhuma (Categoria Raiz)</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
