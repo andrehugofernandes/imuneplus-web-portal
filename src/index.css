@@ -118,6 +118,30 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-gray-400 dark:bg-gray-500;
   }
+
+  /* Dark mode toggle improvements */
+  .dark [data-state=checked] {
+    background-color: hsl(217.2 32.6% 12%) !important;
+  }
+
+  /* Avatar cursor pointer */
+  [data-radix-popper-content-wrapper] {
+    cursor: pointer;
+  }
+
+  /* Calendar and time picker improvements for light mode */
+  .light-modal-content {
+    background-color: white !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  /* Time picker improvements */
+  .light-time-picker {
+    background-color: white !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  }
 }
 
 @layer utilities {

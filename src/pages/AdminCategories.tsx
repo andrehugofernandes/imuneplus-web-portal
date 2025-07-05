@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FolderTree, Plus, Edit, Trash2, ChevronRight } from 'lucide-react';
+import { FolderTree, Plus, Edit, Trash2, ChevronRight, GripVertical } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,96 @@ import {
 } from '@/components/ui/pagination';
 import { CategoryForm } from '@/components/admin/CategoryForm';
 import { useTheme } from '@/contexts/ThemeContext';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+interface SortableSubcategoryProps {
+  child: any;
+  onEdit: (category: any) => void;
+}
+
+function SortableSubcategory({ child, onEdit }: SortableSubcategoryProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: child.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center justify-between p-3 ml-8 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+    >
+      <div className="flex items-center space-x-4">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          <GripVertical className="h-4 w-4 text-gray-400" />
+        </div>
+        <ChevronRight className="h-4 w-4 text-gray-400" />
+        <div 
+          className="w-3 h-3 rounded-full"
+          style={{ backgroundColor: child.color }}
+        />
+        <FolderTree className="h-5 w-5 text-gray-600" />
+        <div>
+          <h4 className="text-sm font-medium text-gray-900 dark:text-white">{child.name}</h4>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{child.filesCount} arquivos</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">{child.description}</p>
+        </div>
+      </div>
+      <div className="flex items-center space-x-2">
+        <Badge variant="outline" className="text-xs">
+          Subcategoria
+        </Badge>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+          onClick={() => onEdit({
+            name: child.name,
+            description: child.description,
+            color: child.color,
+            isActive: true,
+            parentId: child.parentId.toString()
+          })}
+          title={`Editar subcategoria: ${child.name}`}
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-red-600 hover:text-red-700">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminCategories() {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -24,31 +114,7 @@ export default function AdminCategories() {
   const itemsPerPage = 3;
   const totalPages = 2;
 
-  const handleCategorySubmit = (data: any) => {
-    console.log('Category submitted:', data);
-    setShowCategoryForm(false);
-    setEditingCategory(null);
-  };
-
-  const handleEditCategory = (category: any) => {
-    console.log('Editing category:', category);
-    setEditingCategory({
-      name: category.name,
-      description: category.description || '',
-      parentId: category.parentId || '',
-      color: category.color || '#0037C1',
-      isActive: category.isActive ?? true,
-    });
-    setShowCategoryForm(true);
-  };
-
-  const handleNewCategory = () => {
-    console.log('Creating new category');
-    setEditingCategory(null);
-    setShowCategoryForm(true);
-  };
-
-  const categoriesHierarchy = [
+  const [categoriesHierarchy, setCategoriesHierarchy] = useState([
     {
       id: 1,
       name: 'Imunização Infantil',
@@ -103,7 +169,71 @@ export default function AdminCategories() {
         { id: 11, name: 'Animações', type: 'child', filesCount: 3, parentId: 5, color: '#DDA0DD', description: 'Animações educativas' }
       ]
     }
-  ];
+  ]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleCategorySubmit = (data: any) => {
+    console.log('Category submitted:', data);
+    setShowCategoryForm(false);
+    setEditingCategory(null);
+  };
+
+  const handleEditCategory = (category: any) => {
+    console.log('Editing category:', category);
+    setEditingCategory({
+      name: category.name,
+      description: category.description || '',
+      parentId: category.parentId || '',
+      color: category.color || '#0037C1',
+      isActive: category.isActive ?? true,
+    });
+    setShowCategoryForm(true);
+  };
+
+  const handleNewCategory = () => {
+    console.log('Creating new category');
+    setEditingCategory(null);
+    setShowCategoryForm(true);
+  };
+
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      console.log('Reordenando subcategorias de', active.id, 'para', over.id);
+      
+      // Encontrar a categoria pai das subcategorias
+      const parentCategory = categoriesHierarchy.find(cat => 
+        cat.children.some(child => child.id === active.id || child.id === over.id)
+      );
+      
+      if (parentCategory) {
+        setCategoriesHierarchy(prevCategories =>
+          prevCategories.map(category => {
+            if (category.id === parentCategory.id) {
+              const oldIndex = category.children.findIndex(child => child.id === active.id);
+              const newIndex = category.children.findIndex(child => child.id === over.id);
+              
+              return {
+                ...category,
+                children: arrayMove(category.children, oldIndex, newIndex)
+              };
+            }
+            return category;
+          })
+        );
+        
+        // Simular atualização no banco de dados
+        console.log('Ordem das subcategorias atualizada no banco de dados');
+      }
+    }
+  };
 
   const paginatedCategories = categoriesHierarchy.slice(
     (currentPage - 1) * itemsPerPage,
@@ -235,46 +365,28 @@ export default function AdminCategories() {
                   </div>
                 </div>
 
-                {category.children.map((child) => (
-                  <div key={child.id} className="flex items-center justify-between p-3 ml-8 border border-gray-200 dark:border-gray-600 rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <ChevronRight className="h-4 w-4 text-gray-400" />
-                      <div 
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: child.color }}
-                      />
-                      <FolderTree className="h-5 w-5 text-gray-600" />
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900 dark:text-white">{child.name}</h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{child.filesCount} arquivos</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">{child.description}</p>
+                {category.children.length > 0 && (
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={category.children.map(child => child.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-2">
+                        {category.children.map((child) => (
+                          <SortableSubcategory
+                            key={child.id}
+                            child={child}
+                            onEdit={handleEditCategory}
+                          />
+                        ))}
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="outline" className="text-xs">
-                        Subcategoria
-                      </Badge>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300"
-                        onClick={() => handleEditCategory({
-                          name: child.name,
-                          description: child.description,
-                          color: child.color,
-                          isActive: true,
-                          parentId: category.id.toString()
-                        })}
-                        title={`Editar subcategoria: ${child.name}`}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-red-600 hover:text-red-700">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                    </SortableContext>
+                  </DndContext>
+                )}
               </div>
             ))}
           </div>

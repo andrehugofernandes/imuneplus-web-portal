@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Upload, File } from 'lucide-react';
+import { Edit, File, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,25 +10,32 @@ import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useTheme } from '@/contexts/ThemeContext';
 
-interface FileUploadFormData {
+interface FileEditFormData {
   title: string;
   description: string;
   category: string;
   tags: string;
-  file: File | null;
+  file?: File | null;
 }
 
-interface FileUploadFormProps {
+interface FileEditFormProps {
   onClose: () => void;
-  onSubmit?: (data: FileUploadFormData) => void;
+  onSubmit?: (data: FileEditFormData) => void;
+  editData: {
+    id: number;
+    name: string;
+    description?: string;
+    category?: string;
+    tags?: string;
+  };
 }
 
-export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
-  const [formData, setFormData] = useState<FileUploadFormData>({
-    title: '',
-    description: '',
-    category: '',
-    tags: '',
+export function FileEditForm({ onClose, onSubmit, editData }: FileEditFormProps) {
+  const [formData, setFormData] = useState<FileEditFormData>({
+    title: editData.name || '',
+    description: editData.description || '',
+    category: editData.category || '',
+    tags: editData.tags || '',
     file: null,
   });
 
@@ -47,14 +54,14 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitting file upload data:', formData);
+    console.log('Updating file:', editData.id, formData);
     if (onSubmit) {
       onSubmit(formData);
     }
     onClose();
   };
 
-  const handleInputChange = (field: keyof FileUploadFormData, value: string | File | null) => {
+  const handleInputChange = (field: keyof FileEditFormData, value: string | File | null) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -98,16 +105,16 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
             <Badge 
               className="h-8 w-8 rounded-full p-0 flex items-center justify-center bg-white/20"
             >
-              <Upload className="h-4 w-4" style={{ color: textColor }} />
+              <Edit className="h-4 w-4" style={{ color: textColor }} />
             </Badge>
             <SheetTitle className="text-lg font-semibold" style={{ color: textColor }}>
-              Upload de Arquivo
+              Editar Arquivo
             </SheetTitle>
           </div>
         </div>
         
         <SheetDescription className="sr-only">
-          Formulário para upload de novo arquivo
+          Formulário para edição de arquivo existente
         </SheetDescription>
 
         <div className="p-6">
@@ -173,7 +180,7 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
 
             <div className="space-y-2">
               <Label className="text-gray-700 dark:text-gray-300">
-                Arquivo *
+                Substituir Arquivo (Opcional)
               </Label>
               <div
                 className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
@@ -190,7 +197,6 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
                   type="file"
                   onChange={handleFileChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  required
                 />
                 <div className="space-y-2">
                   <Upload className="mx-auto h-8 w-8 text-gray-400" />
@@ -229,7 +235,7 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
                   e.currentTarget.style.backgroundColor = themeColors.primary;
                 }}
               >
-                Fazer Upload
+                Salvar Alterações
               </Button>
             </div>
           </form>

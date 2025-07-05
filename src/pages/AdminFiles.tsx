@@ -1,19 +1,20 @@
-
 import { useState } from 'react';
-import { FileText, Upload, Search, Filter, Download, Trash2 } from 'lucide-react';
+import { FileText, Upload, Search, Filter, Download, Trash2, Edit } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { FileUploadForm } from '@/components/admin/FileUploadForm';
+import { FileEditForm } from '@/components/admin/FileEditForm';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AdminFiles() {
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [editingFile, setEditingFile] = useState<any>(null);
   const [files, setFiles] = useState([
-    { id: 1, name: 'Documento 1.pdf', uploadDate: '2024-01-15', type: 'PDF', size: '2.4 MB' },
-    { id: 2, name: 'Documento 2.pdf', uploadDate: '2024-01-10', type: 'PDF', size: '1.8 MB' },
-    { id: 3, name: 'Apresentação 1.pptx', uploadDate: '2024-01-08', type: 'PPTX', size: '5.2 MB' },
+    { id: 1, name: 'Documento 1.pdf', uploadDate: '2024-01-15', type: 'PDF', size: '2.4 MB', description: 'Documento importante sobre imunização', category: '1', tags: 'vacina, importante' },
+    { id: 2, name: 'Documento 2.pdf', uploadDate: '2024-01-10', type: 'PDF', size: '1.8 MB', description: 'Manual de procedimentos', category: '2', tags: 'manual, procedimento' },
+    { id: 3, name: 'Apresentação 1.pptx', uploadDate: '2024-01-08', type: 'PPTX', size: '5.2 MB', description: 'Apresentação para treinamento', category: '4', tags: 'treinamento, apresentação' },
   ]);
   
   const { themeColors, isLightColor } = useTheme();
@@ -22,6 +23,19 @@ export default function AdminFiles() {
   const handleUploadSubmit = (data: any) => {
     console.log('File upload data:', data);
     setShowUploadForm(false);
+  };
+
+  const handleEditSubmit = (data: any) => {
+    console.log('File edit data:', data);
+    // Simular deletar arquivo antigo se um novo foi enviado
+    if (data.file) {
+      console.log('Deletando arquivo antigo e substituindo por:', data.file.name);
+    }
+    setEditingFile(null);
+  };
+
+  const handleEditFile = (file: any) => {
+    setEditingFile(file);
   };
 
   const handleDeleteFile = (fileId: number) => {
@@ -191,6 +205,14 @@ export default function AdminFiles() {
                   <Button 
                     variant="outline" 
                     size="sm" 
+                    className="border-blue-200 dark:border-blue-600 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                    onClick={() => handleEditFile(file)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
                     className="border-red-200 dark:border-red-600 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                     onClick={() => handleDeleteFile(file.id)}
                   >
@@ -207,6 +229,14 @@ export default function AdminFiles() {
         <FileUploadForm 
           onClose={() => setShowUploadForm(false)}
           onSubmit={handleUploadSubmit}
+        />
+      )}
+
+      {editingFile && (
+        <FileEditForm 
+          onClose={() => setEditingFile(null)}
+          onSubmit={handleEditSubmit}
+          editData={editingFile}
         />
       )}
     </div>
