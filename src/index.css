@@ -124,6 +124,15 @@
     background-color: hsl(217.2 32.6% 12%) !important;
   }
 
+  /* Switch improvements for better contrast in dark mode */
+  .dark [data-radix-switch-root][data-state=checked] {
+    background-color: rgb(55, 65, 81) !important; /* gray-700 */
+  }
+
+  .dark [data-radix-switch-root][data-state=unchecked] {
+    background-color: rgb(75, 85, 99) !important; /* gray-600 */
+  }
+
   /* Avatar cursor pointer */
   [data-radix-popper-content-wrapper] {
     cursor: pointer;

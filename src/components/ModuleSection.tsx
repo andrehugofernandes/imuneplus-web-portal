@@ -20,6 +20,7 @@ interface ModuleSectionProps {
     name: string;
     files: string[];
   }>;
+  textAlign?: 'left' | 'right';
 }
 
 export function ModuleSection({ 
@@ -32,7 +33,8 @@ export function ModuleSection({
   buttons = [],
   hasCategories = false,
   hasVideoCarousel = false,
-  subcategories = []
+  subcategories = [],
+  textAlign = 'left'
 }: ModuleSectionProps) {
   const [openAccordions, setOpenAccordions] = useState<{[key: string]: boolean}>({});
 
@@ -72,8 +74,8 @@ export function ModuleSection({
       <div className="container mx-auto px-4">
         <div className={`grid lg:grid-cols-2 gap-12 items-center ${reversed ? 'lg:flex-row-reverse' : ''}`}>
           {/* Content */}
-          <div className={`space-y-6 ${reversed ? 'lg:order-2' : ''}`}>
-            <div className="flex items-center space-x-4">
+          <div className={`space-y-6 ${reversed ? 'lg:order-2' : ''} ${textAlign === 'right' ? 'text-right' : 'text-left'}`}>
+            <div className={`flex items-center space-x-4 ${textAlign === 'right' ? 'justify-end' : 'justify-start'}`}>
               <div className={`p-3 rounded-lg ${accentColor} bg-white dark:bg-gray-800`}>
                 {icon}
               </div>
@@ -189,6 +191,25 @@ export function ModuleSection({
 
 // Pre-configured module sections
 export function ImpressosSection() {
+  const subcategories = [
+    {
+      name: "Cartão de Vacina",
+      files: ["Cartão Criança - Novo Modelo", "Cartão Adult - Atualizado", "Cartão Idoso - Especial", "Cartão Gestante - 2024"]
+    },
+    {
+      name: "Fichas de Registro",
+      files: ["Ficha Individual - Modelo A", "Ficha Coletiva - Campanha", "Ficha Controle - Estoque", "Ficha Acompanhamento - Mensal"]
+    },
+    {
+      name: "Formulários Oficiais",
+      files: ["Formulário ESAVI", "Formulário Investigação", "Formulário Notificação", "Formulário Relatório"]
+    },
+    {
+      name: "Documentos Técnicos",
+      files: ["Manual Técnico 2024", "Protocolo Aplicação", "Guia Procedimentos", "Normas Segurança"]
+    }
+  ];
+
   return (
     <ModuleSection
       id="impressos"
@@ -196,17 +217,33 @@ export function ImpressosSection() {
       description="Neste espaço, o profissional de saúde encontrará materiais prontos para impressão, que podem ser utilizados no dia a dia da unidade. Aqui estarão disponíveis modelos de cartão de vacina, fichas, formulários e outros documentos importantes para atender demandas imediatas, facilitando a rotina de trabalho e garantindo a continuidade dos serviços mesmo diante de imprevistos."
       color="orange"
       icon={<FileText size={24} />}
-      buttons={[
-        "Cartão de Vacina",
-        "Fichas de Registro",
-        "Formulários Oficiais",
-        "Documentos Técnicos"
-      ]}
+      hasCategories={true}
+      subcategories={subcategories}
+      textAlign="right"
     />
   );
 }
 
 export function CapacitaSection() {
+  const subcategories = [
+    {
+      name: "Apresentações",
+      files: ["Técnicas Aplicação 2024", "Imunização Infantil", "Vacinas COVID-19", "Capacitação Gestores"]
+    },
+    {
+      name: "Apostilas",
+      files: ["Manual Básico Imunização", "Apostila Técnicas Avançadas", "Guia Prático Sala Vacina", "Material Complementar"]
+    },
+    {
+      name: "Material de Apoio",
+      files: ["Infográficos Educativos", "Cartilhas Orientação", "Vídeos Explicativos", "Quiz Conhecimento"]
+    },
+    {
+      name: "Guias de Estudo",
+      files: ["Roteiro Estudo Básico", "Cronograma Capacitação", "Plano Individual", "Avaliação Competências"]
+    }
+  ];
+
   return (
     <ModuleSection
       id="capacita"
@@ -215,12 +252,8 @@ export function CapacitaSection() {
       color="blue"
       icon={<GraduationCap size={24} />}
       reversed={true}
-      buttons={[
-        "Apresentações",
-        "Apostilas",
-        "Material de Apoio",
-        "Guias de Estudo"
-      ]}
+      hasCategories={true}
+      subcategories={subcategories}
     />
   );
 }
@@ -266,6 +299,7 @@ export function BibliotecaSection() {
       icon={<BookOpen size={24} />}
       hasCategories={true}
       subcategories={mockSubcategories}
+      textAlign="right"
     />
   );
 }
