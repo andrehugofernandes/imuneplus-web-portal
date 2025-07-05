@@ -126,16 +126,29 @@
 
   /* Switch improvements for better contrast in dark mode */
   .dark [data-radix-switch-root][data-state=checked] {
-    background-color: rgb(55, 65, 81) !important; /* gray-700 */
+    background-color: rgb(31, 41, 55) !important; /* gray-800 - darker background when active */
   }
 
   .dark [data-radix-switch-root][data-state=unchecked] {
-    background-color: rgb(75, 85, 99) !important; /* gray-600 */
+    background-color: rgb(75, 85, 99) !important; /* gray-600 - lighter background when inactive */
+  }
+
+  .dark [data-radix-switch-thumb][data-state=checked] {
+    background-color: rgb(156, 163, 175) !important; /* gray-400 - lighter thumb when active */
+  }
+
+  .dark [data-radix-switch-thumb][data-state=unchecked] {
+    background-color: rgb(209, 213, 219) !important; /* gray-300 - thumb when inactive */
   }
 
   /* Avatar cursor pointer */
   [data-radix-popper-content-wrapper] {
     cursor: pointer;
+  }
+
+  /* Avatar dropdown menu items cursor pointer */
+  [data-radix-dropdown-menu-content] [data-radix-dropdown-menu-item] {
+    cursor: pointer !important;
   }
 
   /* Calendar and time picker improvements for light mode */
@@ -150,6 +163,16 @@
     background-color: white !important;
     border: 1px solid #e5e7eb !important;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* Enhanced shadow for schedule modals */
+  .schedule-modal-shadow {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  /* Button cursor pointer for schedule buttons */
+  .schedule-button {
+    cursor: pointer !important;
   }
 }
 

@@ -1,16 +1,14 @@
+
 import { 
   BarChart, 
   Users, 
   FolderTree, 
   FileText, 
   List, 
-  Settings,
-  ChevronLeft,
-  ChevronRight
+  Settings
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -29,7 +27,7 @@ const menuItems = [
   { name: 'Configurações', icon: Settings, route: '/admin/configuracoes' },
 ];
 
-export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
+export function AdminSidebar({ collapsed }: AdminSidebarProps) {
   const location = useLocation();
   const { themeColors } = useTheme();
 
@@ -40,9 +38,16 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         collapsed ? "w-16" : "w-64"
       )}>
         <div className="flex flex-col h-full">
-          {/* Header - Altura ajustada para 72px */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 h-[72px]">
-            {!collapsed && (
+          {/* Header - Logo apenas */}
+          <div className="flex items-center justify-center p-4 border-b border-gray-200 dark:border-gray-700 h-[72px]">
+            {collapsed ? (
+              <div 
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: themeColors.primary }}
+              >
+                <span className="text-white font-bold text-sm">I+</span>
+              </div>
+            ) : (
               <div className="flex items-center space-x-2">
                 <div 
                   className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -51,19 +56,10 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                   <span className="text-white font-bold text-sm">I+</span>
                 </div>
                 <span className="font-bold text-lg text-gray-900 dark:text-white">
-                  IMUNE+
+                  IMUNE+ Jaboatão
                 </span>
               </div>
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggle}
-              className="h-8 w-8 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              style={{ color: themeColors.primary }}
-            >
-              {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-            </Button>
           </div>
 
           {/* Navigation */}
