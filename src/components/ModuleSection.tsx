@@ -61,10 +61,19 @@ export function ModuleSection({
                       "bg-gray-500 hover:bg-gray-600";
 
   const toggleAccordion = (categoryName: string) => {
+    console.log('Toggling accordion:', categoryName);
     setOpenAccordions(prev => ({
       ...prev,
       [categoryName]: !prev[categoryName]
     }));
+  };
+
+  const handleTooltipOpen = (fileName: string) => {
+    console.log('Tooltip opening for file:', fileName);
+  };
+
+  const handleTooltipClose = () => {
+    console.log('Tooltip closing');
   };
 
   const mockVideos = [
@@ -77,7 +86,7 @@ export function ModuleSection({
   ];
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={100}>
       <section id={id} className={`py-20 ${bgColor}`}>
         <div className="container mx-auto px-4">
           <div className={`grid lg:grid-cols-5 gap-8 items-start ${reversed ? 'lg:flex-row-reverse' : ''}`}>
@@ -124,8 +133,8 @@ export function ModuleSection({
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious className="left-2 z-10" />
-                    <CarouselNext className="right-2 z-10" />
+                    <CarouselPrevious className="left-2 z-[5]" />
+                    <CarouselNext className="right-2 z-[5]" />
                   </Carousel>
                 </div>
               ) : hasCategories ? (
@@ -133,7 +142,7 @@ export function ModuleSection({
                   <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
                     Categorias por Imunobiológico
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {subcategories.map((category) => (
                       <Collapsible
                         key={category.name}
@@ -142,7 +151,7 @@ export function ModuleSection({
                       >
                         <CollapsibleTrigger asChild>
                           <button
-                            className={`w-full ${buttonColor} text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center justify-between relative z-20`}
+                            className={`w-full ${buttonColor} text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center justify-between relative z-[10]`}
                           >
                             <span>{category.name}</span>
                             <ChevronDown 
@@ -152,32 +161,47 @@ export function ModuleSection({
                             />
                           </button>
                         </CollapsibleTrigger>
-                        <CollapsibleContent className="mt-2 overflow-hidden">
-                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <CollapsibleContent className="mt-3 overflow-visible">
+                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 min-h-[200px] relative">
                             <Carousel className="w-full">
-                              <CarouselContent>
+                              <CarouselContent className="-ml-2">
                                 {category.files.map((file, index) => (
-                                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                                    <div className="p-2">
+                                  <CarouselItem key={index} className="pl-2 md:basis-1/2 lg:basis-1/3">
+                                    <div className="p-2 relative">
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <button
-                                            className={`w-full ${buttonColor} text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center space-x-2 relative z-30`}
+                                            className={`w-full ${buttonColor} text-white px-3 py-4 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center space-x-2 relative z-[15]`}
+                                            onMouseEnter={() => handleTooltipOpen(file)}
+                                            onMouseLeave={handleTooltipClose}
                                           >
-                                            <FileText className="h-4 w-4" />
-                                            <span className="truncate">{file}</span>
+                                            <FileText className="h-4 w-4 flex-shrink-0" />
+                                            <span className="truncate text-left">{file}</span>
                                           </button>
                                         </TooltipTrigger>
-                                        <TooltipContent className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm max-w-xs z-[9999] relative">
-                                          <p>{file}</p>
+                                        <TooltipContent 
+                                          className="bg-gray-900 text-white px-4 py-3 rounded-md text-sm max-w-xs z-[9999] relative shadow-2xl border border-gray-600"
+                                          side="top"
+                                          align="center"
+                                          sideOffset={8}
+                                          style={{ 
+                                            position: 'relative',
+                                            zIndex: 99999,
+                                            backgroundColor: '#1f2937',
+                                            color: 'white',
+                                            border: '1px solid #4b5563',
+                                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                                          }}
+                                        >
+                                          <p className="font-medium">{file}</p>
                                         </TooltipContent>
                                       </Tooltip>
                                     </div>
                                   </CarouselItem>
                                 ))}
                               </CarouselContent>
-                              <CarouselPrevious className="left-1 z-10" />
-                              <CarouselNext className="right-1 z-10" />
+                              <CarouselPrevious className="left-1 z-[5]" />
+                              <CarouselNext className="right-1 z-[5]" />
                             </Carousel>
                           </div>
                         </CollapsibleContent>

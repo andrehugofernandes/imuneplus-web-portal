@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
@@ -179,14 +180,52 @@
     cursor: pointer !important;
   }
 
-  /* Tooltip z-index improvements */
+  /* TOOLTIP Z-INDEX FIXES - MAXIMUM PRIORITY */
   [data-radix-tooltip-content] {
-    z-index: 9999 !important;
+    z-index: 99999 !important;
+    position: fixed !important;
+    background-color: #1f2937 !important;
+    color: white !important;
+    border: 1px solid #4b5563 !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
   }
 
-  /* Ensure tooltips appear above all other content */
+  /* Ensure tooltips appear above ALL other content */
   .tooltip-high-z {
-    z-index: 9999 !important;
+    z-index: 99999 !important;
+    position: fixed !important;
+  }
+
+  /* Accordion header z-index adjustment - LOWER than tooltips */
+  [data-radix-collapsible-trigger] {
+    z-index: 10 !important;
+    position: relative;
+  }
+
+  /* File button z-index to be above carousel arrows but below tooltips */
+  .file-button-z {
+    z-index: 15 !important;
+    position: relative;
+  }
+
+  /* Carousel arrow z-index - MUCH lower than buttons and tooltips */
+  .carousel-arrow-z {
+    z-index: 5 !important;
+  }
+
+  /* Force tooltip portal to be on top of everything */
+  [data-radix-tooltip-portal] {
+    z-index: 99999 !important;
+  }
+
+  /* Override any conflicting z-index for tooltip content */
+  [data-radix-tooltip-content][data-side] {
+    z-index: 99999 !important;
+    position: fixed !important;
+    background-color: #1f2937 !important;
+    color: white !important;
+    border: 1px solid #4b5563 !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
   }
 }
 
@@ -214,32 +253,3 @@
     @apply bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent;
   }
 }
-
-  /* Enhanced tooltip z-index */
-  [data-radix-tooltip-content] {
-    z-index: 9999 !important;
-    position: relative !important;
-  }
-
-  /* Ensure tooltips appear above all other content including accordion headers */
-  .tooltip-high-z {
-    z-index: 9999 !important;
-    position: relative !important;
-  }
-
-  /* Accordion header z-index adjustment */
-  [data-radix-collapsible-trigger] {
-    z-index: 20 !important;
-    position: relative;
-  }
-
-  /* File button z-index to be above carousel arrows but below tooltips */
-  .file-button-z {
-    z-index: 30 !important;
-    position: relative;
-  }
-
-  /* Carousel arrow z-index - lower than buttons */
-  .carousel-arrow-z {
-    z-index: 10 !important;
-  }
