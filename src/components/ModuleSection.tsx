@@ -162,7 +162,7 @@ export function ModuleSection({
                           </button>
                         </CollapsibleTrigger>
                         <CollapsibleContent className="mt-3">
-                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 min-h-[200px] relative overflow-visible">
+                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 min-h-[150px] relative overflow-visible">
                             <Carousel className="w-full">
                               <CarouselContent className="-ml-2">
                                 {category.files.map((file, index) => (
@@ -179,7 +179,12 @@ export function ModuleSection({
                                             <span className="truncate text-left">{file}</span>
                                           </button>
                                         </TooltipTrigger>
-                                        <TooltipContent className="tooltip-high-z">
+                                        <TooltipContent 
+                                          className="bg-black text-white px-3 py-2 rounded-md text-sm whitespace-nowrap tooltip-high-z"
+                                          side="top"
+                                          align="center"
+                                          sideOffset={12}
+                                        >
                                           <p className="font-medium">{file}</p>
                                         </TooltipContent>
                                       </Tooltip>
