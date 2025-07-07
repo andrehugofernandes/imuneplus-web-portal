@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
@@ -215,3 +214,32 @@
     @apply bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent;
   }
 }
+
+  /* Enhanced tooltip z-index */
+  [data-radix-tooltip-content] {
+    z-index: 9999 !important;
+    position: relative !important;
+  }
+
+  /* Ensure tooltips appear above all other content including accordion headers */
+  .tooltip-high-z {
+    z-index: 9999 !important;
+    position: relative !important;
+  }
+
+  /* Accordion header z-index adjustment */
+  [data-radix-collapsible-trigger] {
+    z-index: 20 !important;
+    position: relative;
+  }
+
+  /* File button z-index to be above carousel arrows but below tooltips */
+  .file-button-z {
+    z-index: 30 !important;
+    position: relative;
+  }
+
+  /* Carousel arrow z-index - lower than buttons */
+  .carousel-arrow-z {
+    z-index: 10 !important;
+  }

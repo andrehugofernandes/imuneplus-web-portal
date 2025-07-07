@@ -80,9 +80,9 @@ export function ModuleSection({
     <TooltipProvider>
       <section id={id} className={`py-20 ${bgColor}`}>
         <div className="container mx-auto px-4">
-          <div className={`grid lg:grid-cols-2 gap-12 items-center ${reversed ? 'lg:flex-row-reverse' : ''}`}>
-            {/* Content */}
-            <div className={`space-y-6 ${reversed ? 'lg:order-2' : ''} ${textAlign === 'right' ? 'text-right' : 'text-left'}`}>
+          <div className={`grid lg:grid-cols-5 gap-8 items-start ${reversed ? 'lg:flex-row-reverse' : ''}`}>
+            {/* Content - 40% width */}
+            <div className={`lg:col-span-2 space-y-6 ${reversed ? 'lg:order-2' : ''} ${textAlign === 'right' ? 'text-right' : 'text-left'}`}>
               <div className={`flex items-center space-x-4 ${textAlign === 'right' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`p-3 rounded-lg ${accentColor} bg-white dark:bg-gray-800`}>
                   {icon}
@@ -97,8 +97,8 @@ export function ModuleSection({
               </p>
             </div>
 
-            {/* Content Area */}
-            <div className={`${reversed ? 'lg:order-1' : ''}`}>
+            {/* Content Area - 60% width */}
+            <div className={`lg:col-span-3 ${reversed ? 'lg:order-1' : ''}`}>
               {hasVideoCarousel ? (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
                   <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
@@ -124,12 +124,12 @@ export function ModuleSection({
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious className="left-2" />
-                    <CarouselNext className="right-2" />
+                    <CarouselPrevious className="left-2 z-10" />
+                    <CarouselNext className="right-2 z-10" />
                   </Carousel>
                 </div>
               ) : hasCategories ? (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg relative">
                   <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
                     Categorias por Imunobiológico
                   </h3>
@@ -142,7 +142,7 @@ export function ModuleSection({
                       >
                         <CollapsibleTrigger asChild>
                           <button
-                            className={`w-full ${buttonColor} text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center justify-between`}
+                            className={`w-full ${buttonColor} text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center justify-between relative z-20`}
                           >
                             <span>{category.name}</span>
                             <ChevronDown 
@@ -162,13 +162,13 @@ export function ModuleSection({
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <button
-                                            className={`w-full ${buttonColor} text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center space-x-2`}
+                                            className={`w-full ${buttonColor} text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center space-x-2 relative z-30`}
                                           >
                                             <FileText className="h-4 w-4" />
                                             <span className="truncate">{file}</span>
                                           </button>
                                         </TooltipTrigger>
-                                        <TooltipContent className="tooltip-high-z bg-gray-900 text-white px-3 py-2 rounded-md text-sm max-w-xs">
+                                        <TooltipContent className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm max-w-xs z-[9999] relative">
                                           <p>{file}</p>
                                         </TooltipContent>
                                       </Tooltip>
@@ -176,8 +176,8 @@ export function ModuleSection({
                                   </CarouselItem>
                                 ))}
                               </CarouselContent>
-                              <CarouselPrevious className="left-1" />
-                              <CarouselNext className="right-1" />
+                              <CarouselPrevious className="left-1 z-10" />
+                              <CarouselNext className="right-1 z-10" />
                             </Carousel>
                           </div>
                         </CollapsibleContent>

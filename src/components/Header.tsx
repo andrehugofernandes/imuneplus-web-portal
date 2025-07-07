@@ -6,9 +6,11 @@ import { Shield, Search, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useState } from 'react';
 
 export function Header() {
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -37,13 +39,28 @@ export function Header() {
               Contato
             </a>
             
-            {/* Search Input */}
+            {/* Search - Expandable */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
-              <Input
-                placeholder="Buscar..."
-                className="pl-10 w-48 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
-              />
+              {isSearchOpen ? (
+                <div className="flex items-center">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
+                  <Input
+                    placeholder="Buscar..."
+                    className="pl-10 w-48 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+                    onBlur={() => setIsSearchOpen(false)}
+                    autoFocus
+                  />
+                </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsSearchOpen(true)}
+                  className="text-gray-600 dark:text-gray-300 hover:text-[#0037C1] dark:hover:text-blue-400"
+                >
+                  <Search size={20} />
+                </Button>
+              )}
             </div>
 
             {/* Theme Toggle */}
