@@ -161,8 +161,8 @@ export function ModuleSection({
                             />
                           </button>
                         </CollapsibleTrigger>
-                        <CollapsibleContent className="mt-3 overflow-visible">
-                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 min-h-[200px] relative">
+                        <CollapsibleContent className="mt-3">
+                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 min-h-[200px] relative overflow-visible">
                             <Carousel className="w-full">
                               <CarouselContent className="-ml-2">
                                 {category.files.map((file, index) => (
@@ -171,7 +171,7 @@ export function ModuleSection({
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <button
-                                            className={`w-full ${buttonColor} text-white px-3 py-4 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center space-x-2 relative z-[15]`}
+                                            className={`w-full ${buttonColor} text-white px-3 py-4 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center space-x-2 relative z-[50]`}
                                             onMouseEnter={() => handleTooltipOpen(file)}
                                             onMouseLeave={handleTooltipClose}
                                           >
@@ -179,20 +179,7 @@ export function ModuleSection({
                                             <span className="truncate text-left">{file}</span>
                                           </button>
                                         </TooltipTrigger>
-                                        <TooltipContent 
-                                          className="bg-gray-900 text-white px-4 py-3 rounded-md text-sm max-w-xs z-[9999] relative shadow-2xl border border-gray-600"
-                                          side="top"
-                                          align="center"
-                                          sideOffset={8}
-                                          style={{ 
-                                            position: 'relative',
-                                            zIndex: 99999,
-                                            backgroundColor: '#1f2937',
-                                            color: 'white',
-                                            border: '1px solid #4b5563',
-                                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-                                          }}
-                                        >
+                                        <TooltipContent className="tooltip-high-z">
                                           <p className="font-medium">{file}</p>
                                         </TooltipContent>
                                       </Tooltip>
@@ -200,8 +187,8 @@ export function ModuleSection({
                                   </CarouselItem>
                                 ))}
                               </CarouselContent>
-                              <CarouselPrevious className="left-1 z-[5]" />
-                              <CarouselNext className="right-1 z-[5]" />
+                              <CarouselPrevious className="-left-16 z-[1]" />
+                              <CarouselNext className="-right-16 z-[1]" />
                             </Carousel>
                           </div>
                         </CollapsibleContent>
