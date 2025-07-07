@@ -38,6 +38,10 @@
 
     --radius: 0.5rem;
 
+    /* Yellow theme colors */
+    --yellow-light: 50 95% 85%;
+    --yellow-light-foreground: 222.2 84% 4.9%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -76,6 +80,10 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    
+    /* Yellow theme colors for dark mode */
+    --yellow-light: 45 93% 25%;
+    --yellow-light-foreground: 210 40% 98%;
     
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;

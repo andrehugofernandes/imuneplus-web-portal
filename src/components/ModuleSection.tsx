@@ -44,6 +44,7 @@ export function ModuleSection({
                   color === "green" ? "bg-green-50 dark:bg-green-900/20" :
                   color === "emerald" ? "bg-emerald-50 dark:bg-emerald-900/20" :
                   color === "teal" ? "bg-teal-50 dark:bg-teal-900/20" :
+                  color === "yellow" ? "bg-yellow-light dark:bg-yellow-light" :
                   "bg-gray-50 dark:bg-gray-900/20";
 
   const accentColor = color === "orange" ? "text-orange-600" :
@@ -51,6 +52,7 @@ export function ModuleSection({
                       color === "green" ? "text-green-600" :
                       color === "emerald" ? "text-emerald-600" :
                       color === "teal" ? "text-teal-600" :
+                      color === "yellow" ? "text-yellow-light-foreground" :
                       "text-gray-600";
 
   const buttonColor = color === "orange" ? "bg-orange-500 hover:bg-orange-600" :
@@ -58,6 +60,7 @@ export function ModuleSection({
                       color === "green" ? "bg-green-600 hover:bg-green-700" :
                       color === "emerald" ? "bg-emerald-500 hover:bg-emerald-600" :
                       color === "teal" ? "bg-teal-500 hover:bg-teal-600" :
+                      color === "yellow" ? "bg-yellow-600 hover:bg-yellow-700" :
                       "bg-gray-500 hover:bg-gray-600";
 
   const toggleAccordion = (categoryName: string) => {
@@ -101,7 +104,7 @@ export function ModuleSection({
                 </h2>
               </div>
               
-              <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+              <p className={`text-lg leading-relaxed ${color === "yellow" ? "text-yellow-light-foreground" : "text-gray-700 dark:text-gray-300"}`}>
                 {description}
               </p>
             </div>
@@ -110,7 +113,7 @@ export function ModuleSection({
             <div className={`lg:col-span-3 ${reversed ? 'lg:order-1' : ''}`}>
               {hasVideoCarousel ? (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+                  <h3 className={`text-lg font-semibold mb-4 ${color === "yellow" ? "text-yellow-light-foreground" : "text-gray-800 dark:text-gray-200"}`}>
                     Vídeos Educativos
                   </h3>
                   <Carousel className="w-full">
@@ -126,7 +129,7 @@ export function ModuleSection({
                                 </div>
                               </div>
                             </div>
-                            <p className="text-sm font-medium text-center mt-2 text-gray-700 dark:text-gray-300">
+                            <p className={`text-sm font-medium text-center mt-2 ${color === "yellow" ? "text-yellow-light-foreground" : "text-gray-700 dark:text-gray-300"}`}>
                               {video}
                             </p>
                           </div>
@@ -139,7 +142,7 @@ export function ModuleSection({
                 </div>
               ) : hasCategories ? (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg relative">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+                  <h3 className={`text-lg font-semibold mb-4 ${color === "yellow" ? "text-yellow-light-foreground" : "text-gray-800 dark:text-gray-200"}`}>
                     Categorias por Imunobiológico
                   </h3>
                   <div className="space-y-4">
@@ -342,7 +345,7 @@ export function ImunePlaySection() {
       id="imuneplay"
       title="IMUNEPLAY"
       description="Aqui serão encontrados vídeos curtos, objetivos e educativos, com orientações técnicas baseadas nas diretrizes do Ministério da Saúde. O objetivo é facilitar o aprendizado contínuo com conteúdos rápidos e acessíveis, que ajudam no aperfeiçoamento das práticas profissionais de forma dinâmica e moderna."
-      color="teal"
+      color="yellow"
       icon={<Video size={24} />}
       reversed={true}
       hasVideoCarousel={true}
