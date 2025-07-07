@@ -2,12 +2,16 @@
 'use client';
 
 import { Link } from 'react-router-dom';
-import { Shield } from 'lucide-react';
+import { Shield, Search, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function Header() {
+  const { isDarkMode, toggleDarkMode } = useTheme();
+
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center">
@@ -16,24 +20,44 @@ export function Header() {
                 <span className="text-white font-bold text-lg">I+</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">IMUNE+</h1>
-                <p className="text-xs text-gray-500">Jaboatão dos Guararapes</p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">IMUNE+</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Jaboatão dos Guararapes</p>
               </div>
             </Link>
           </div>
           
-          <nav className="flex items-center space-x-6">
-            <a href="#modulos" className="text-gray-600 hover:text-[#0037C1] transition-colors">
+          <nav className="flex items-center space-x-4">
+            <a href="#modulos" className="text-gray-600 dark:text-gray-300 hover:text-[#0037C1] dark:hover:text-blue-400 transition-colors">
               Módulos
             </a>
-            <a href="#sobre" className="text-gray-600 hover:text-[#0037C1] transition-colors">
+            <a href="#sobre" className="text-gray-600 dark:text-gray-300 hover:text-[#0037C1] dark:hover:text-blue-400 transition-colors">
               Sobre
             </a>
-            <a href="#contato" className="text-gray-600 hover:text-[#0037C1] transition-colors">
+            <a href="#contato" className="text-gray-600 dark:text-gray-300 hover:text-[#0037C1] dark:hover:text-blue-400 transition-colors">
               Contato
             </a>
+            
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
+              <Input
+                placeholder="Buscar..."
+                className="pl-10 w-48 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+              />
+            </div>
+
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleDarkMode}
+              className="text-gray-600 dark:text-gray-300 hover:text-[#0037C1] dark:hover:text-blue-400"
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </Button>
+
             <Link to="/admin">
-              <Button variant="outline" size="sm" className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" className="flex items-center space-x-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                 <Shield size={16} />
                 <span>Admin</span>
               </Button>

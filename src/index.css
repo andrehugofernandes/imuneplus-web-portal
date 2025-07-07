@@ -151,6 +151,11 @@
     cursor: pointer !important;
   }
 
+  /* Avatar trigger cursor pointer for dashboard */
+  [data-radix-dropdown-menu-trigger] {
+    cursor: pointer !important;
+  }
+
   /* Calendar and time picker improvements for light mode */
   .light-modal-content {
     background-color: white !important;
@@ -173,6 +178,16 @@
   /* Button cursor pointer for schedule buttons */
   .schedule-button {
     cursor: pointer !important;
+  }
+
+  /* Tooltip z-index improvements */
+  [data-radix-tooltip-content] {
+    z-index: 9999 !important;
+  }
+
+  /* Ensure tooltips appear above all other content */
+  .tooltip-high-z {
+    z-index: 9999 !important;
   }
 }
 

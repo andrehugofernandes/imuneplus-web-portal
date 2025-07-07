@@ -1,3 +1,4 @@
+
 "use client";
 
 import { FileText, BookOpen, Video, GraduationCap, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
@@ -41,17 +42,23 @@ export function ModuleSection({
   const bgColor = color === "orange" ? "bg-orange-50 dark:bg-orange-900/20" :
                   color === "blue" ? "bg-blue-50 dark:bg-blue-900/20" :
                   color === "green" ? "bg-green-50 dark:bg-green-900/20" :
-                  "bg-emerald-50 dark:bg-emerald-900/20";
+                  color === "emerald" ? "bg-emerald-50 dark:bg-emerald-900/20" :
+                  color === "teal" ? "bg-teal-50 dark:bg-teal-900/20" :
+                  "bg-gray-50 dark:bg-gray-900/20";
 
   const accentColor = color === "orange" ? "text-orange-600" :
                       color === "blue" ? "text-blue-600" :
                       color === "green" ? "text-green-600" :
-                      "text-emerald-600";
+                      color === "emerald" ? "text-emerald-600" :
+                      color === "teal" ? "text-teal-600" :
+                      "text-gray-600";
 
   const buttonColor = color === "orange" ? "bg-orange-500 hover:bg-orange-600" :
                       color === "blue" ? "bg-blue-600 hover:bg-blue-700" :
                       color === "green" ? "bg-green-600 hover:bg-green-700" :
-                      "bg-emerald-500 hover:bg-emerald-600";
+                      color === "emerald" ? "bg-emerald-500 hover:bg-emerald-600" :
+                      color === "teal" ? "bg-teal-500 hover:bg-teal-600" :
+                      "bg-gray-500 hover:bg-gray-600";
 
   const toggleAccordion = (categoryName: string) => {
     setOpenAccordions(prev => ({
@@ -161,7 +168,7 @@ export function ModuleSection({
                                             <span className="truncate">{file}</span>
                                           </button>
                                         </TooltipTrigger>
-                                        <TooltipContent>
+                                        <TooltipContent className="tooltip-high-z bg-gray-900 text-white px-3 py-2 rounded-md text-sm max-w-xs">
                                           <p>{file}</p>
                                         </TooltipContent>
                                       </Tooltip>
@@ -319,7 +326,7 @@ export function ImunePlaySection() {
       id="imuneplay"
       title="IMUNEPLAY"
       description="Aqui serão encontrados vídeos curtos, objetivos e educativos, com orientações técnicas baseadas nas diretrizes do Ministério da Saúde. O objetivo é facilitar o aprendizado contínuo com conteúdos rápidos e acessíveis, que ajudam no aperfeiçoamento das práticas profissionais de forma dinâmica e moderna."
-      color="emerald"
+      color="teal"
       icon={<Video size={24} />}
       reversed={true}
       hasVideoCarousel={true}
