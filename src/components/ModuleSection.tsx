@@ -174,7 +174,7 @@ export function ModuleSection({
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <button
-                                            className={`w-full ${buttonColor} text-white px-3 py-4 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center space-x-2 relative z-[50]`}
+                                            className={`w-full ${buttonColor} text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center space-x-2 relative z-[50]`}
                                             onMouseEnter={() => handleTooltipOpen(file)}
                                             onMouseLeave={handleTooltipClose}
                                           >
@@ -185,8 +185,8 @@ export function ModuleSection({
                                         <TooltipContent 
                                           className="bg-black text-white px-3 py-2 rounded-md text-sm whitespace-nowrap tooltip-high-z"
                                           side="top"
-                                          align="center"
-                                          sideOffset={12}
+                                          align="start"
+                                          sideOffset={10}
                                         >
                                           <p className="font-medium">{file}</p>
                                         </TooltipContent>
