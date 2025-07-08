@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/pagination';
 import { CategoryForm } from '@/components/admin/CategoryForm';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useToast } from '@/hooks/use-toast';
 import {
   DndContext,
   closestCenter,
@@ -104,12 +105,100 @@ function SortableSubcategory({ child, onEdit }: SortableSubcategoryProps) {
   );
 }
 
+interface SortableCategoryProps {
+  category: any;
+  onEdit: (category: any) => void;
+}
+
+function SortableCategory({ category, onEdit }: SortableCategoryProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div key={category.id} className="space-y-2">
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50"
+      >
+        <div className="flex items-center space-x-4">
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div 
+            className="w-4 h-4 rounded-full"
+            style={{ backgroundColor: category.color }}
+          />
+          <FolderTree className="h-6 w-6 text-blue-600" />
+          <div>
+            <h3 className="font-medium text-gray-900 dark:text-white">{category.name}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {category.filesCount} arquivos • {category.children.length} subcategorias
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">{category.description}</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+            Principal
+          </Badge>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+            onClick={() => onEdit({
+              name: category.name,
+              description: category.description,
+              color: category.color,
+              isActive: true,
+              parentId: ''
+            })}
+            title={`Editar categoria: ${category.name}`}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-red-600 hover:text-red-700">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {category.children.length > 0 && (
+        <div className="space-y-2">
+          {category.children.map((child: any) => (
+            <SortableSubcategory
+              key={child.id}
+              child={child}
+              onEdit={onEdit}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminCategories() {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+  const { toast } = useToast();
 
   const itemsPerPage = 3;
   const totalPages = 2;
@@ -205,34 +294,149 @@ export default function AdminCategories() {
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
 
-    if (active.id !== over?.id) {
-      console.log('Reordenando subcategorias de', active.id, 'para', over.id);
+    if (active.id !== over?.id && over) {
+      const activeItem = findItemById(active.id);
+      const overItem = findItemById(over.id);
       
-      // Encontrar a categoria pai das subcategorias
-      const parentCategory = categoriesHierarchy.find(cat => 
-        cat.children.some(child => child.id === active.id || child.id === over.id)
-      );
-      
-      if (parentCategory) {
-        setCategoriesHierarchy(prevCategories =>
-          prevCategories.map(category => {
-            if (category.id === parentCategory.id) {
-              const oldIndex = category.children.findIndex(child => child.id === active.id);
-              const newIndex = category.children.findIndex(child => child.id === over.id);
-              
-              return {
-                ...category,
-                children: arrayMove(category.children, oldIndex, newIndex)
-              };
-            }
-            return category;
-          })
-        );
+      if (activeItem && overItem) {
+        // Cenário 1: Subcategoria movendo entre categorias principais
+        if (activeItem.isChild && overItem.isParent) {
+          moveSubcategoryToParent(activeItem, overItem);
+        }
+        // Cenário 2: Categoria principal virando subcategoria
+        else if (activeItem.isParent && overItem.isParent) {
+          moveParentToSubcategory(activeItem, overItem);
+        }
+        // Cenário 3: Reordenação dentro da mesma categoria principal
+        else if (activeItem.isChild && overItem.isChild && 'parentId' in activeItem && 'parentId' in overItem && activeItem.parentId === overItem.parentId) {
+          reorderSubcategories(activeItem, overItem);
+        }
+        // Cenário 4: Subcategoria movendo para outra categoria
+        else if (activeItem.isChild && overItem.isChild && 'parentId' in activeItem && 'parentId' in overItem && activeItem.parentId !== overItem.parentId) {
+          moveSubcategoryBetweenParents(activeItem, overItem);
+        }
         
-        // Simular atualização no banco de dados
-        console.log('Ordem das subcategorias atualizada no banco de dados');
+        toast({
+          title: "Categoria atualizada com sucesso!",
+          description: "A hierarquia de categorias foi atualizada no banco de dados.",
+        });
       }
     }
+  };
+  
+  const findItemById = (id: number) => {
+    // Procurar nas categorias principais
+    const parentCategory = categoriesHierarchy.find(cat => cat.id === id);
+    if (parentCategory) {
+      return { ...parentCategory, isParent: true, isChild: false };
+    }
+    
+    // Procurar nas subcategorias
+    for (const category of categoriesHierarchy) {
+      const childCategory = category.children.find(child => child.id === id);
+      if (childCategory) {
+        return { ...childCategory, isParent: false, isChild: true, parentId: category.id };
+      }
+    }
+    return null;
+  };
+  
+  const moveSubcategoryToParent = (subcategory: any, newParent: any) => {
+    setCategoriesHierarchy(prevCategories => {
+      return prevCategories.map(category => {
+        // Remover da categoria antiga
+        if (category.id === subcategory.parentId) {
+          return {
+            ...category,
+            children: category.children.filter(child => child.id !== subcategory.id)
+          };
+        }
+        // Adicionar à nova categoria
+        if (category.id === newParent.id) {
+          return {
+            ...category,
+            children: [...category.children, { ...subcategory, parentId: newParent.id }]
+          };
+        }
+        return category;
+      });
+    });
+  };
+  
+  const moveParentToSubcategory = (parentCategory: any, targetParent: any) => {
+    setCategoriesHierarchy(prevCategories => {
+      const filteredCategories = prevCategories.filter(cat => cat.id !== parentCategory.id);
+      
+      return filteredCategories.map(category => {
+        if (category.id === targetParent.id) {
+          const newSubcategory = {
+            ...parentCategory,
+            type: 'child',
+            parentId: targetParent.id,
+            children: undefined
+          };
+          
+          const newChildren = [...category.children, newSubcategory];
+          
+          // Adicionar as antigas subcategorias como subcategorias do target
+          if (parentCategory.children && parentCategory.children.length > 0) {
+            newChildren.push(...parentCategory.children.map((child: any) => ({
+              ...child,
+              parentId: targetParent.id
+            })));
+          }
+          
+          return {
+            ...category,
+            children: newChildren
+          };
+        }
+        return category;
+      });
+    });
+  };
+  
+  const reorderSubcategories = (activeChild: any, overChild: any) => {
+    setCategoriesHierarchy(prevCategories =>
+      prevCategories.map(category => {
+        if (category.id === activeChild.parentId) {
+          const oldIndex = category.children.findIndex(child => child.id === activeChild.id);
+          const newIndex = category.children.findIndex(child => child.id === overChild.id);
+          
+          return {
+            ...category,
+            children: arrayMove(category.children, oldIndex, newIndex)
+          };
+        }
+        return category;
+      })
+    );
+  };
+  
+  const moveSubcategoryBetweenParents = (activeChild: any, overChild: any) => {
+    setCategoriesHierarchy(prevCategories => {
+      return prevCategories.map(category => {
+        // Remover da categoria antiga
+        if (category.id === activeChild.parentId) {
+          return {
+            ...category,
+            children: category.children.filter(child => child.id !== activeChild.id)
+          };
+        }
+        // Adicionar à categoria do over item
+        if (category.id === overChild.parentId) {
+          const overIndex = category.children.findIndex(child => child.id === overChild.id);
+          const newChildren = [...category.children];
+          newChildren.splice(overIndex + 1, 0, { ...activeChild, parentId: overChild.parentId });
+          
+          return {
+            ...category,
+            children: newChildren
+          };
+        }
+        return category;
+      });
+    });
   };
 
   const paginatedCategories = categoriesHierarchy.slice(
@@ -240,35 +444,55 @@ export default function AdminCategories() {
     currentPage * itemsPerPage
   );
 
+  const getAllItemsForDnd = () => {
+    const items: any[] = [];
+    categoriesHierarchy.forEach(category => {
+      items.push(category.id);
+      category.children.forEach((child: any) => {
+        items.push(child.id);
+      });
+    });
+    return items;
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Gerenciar Categorias
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Organize documentos por categorias e subcategorias
-          </p>
-        </div>
-        <Button 
-          onClick={handleNewCategory}
-          className="transition-colors"
-          style={{ 
-            backgroundColor: themeColors.primary,
-            color: textColor,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = themeColors.primaryHover;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = themeColors.primary;
-          }}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Nova Categoria
-        </Button>
-      </div>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={getAllItemsForDnd()}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Gerenciar Categorias
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
+                Organize documentos por categorias e subcategorias
+              </p>
+            </div>
+            <Button 
+              onClick={handleNewCategory}
+              className="transition-colors"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                color: textColor,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = themeColors.primaryHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = themeColors.primary;
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nova Categoria
+            </Button>
+          </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
@@ -324,70 +548,7 @@ export default function AdminCategories() {
         <CardContent>
           <div className="space-y-4">
             {paginatedCategories.map((category) => (
-              <div key={category.id} className="space-y-2">
-                <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <div className="flex items-center space-x-4">
-                    <div 
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: category.color }}
-                    />
-                    <FolderTree className="h-6 w-6 text-blue-600" />
-                    <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">{category.name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {category.filesCount} arquivos • {category.children.length} subcategorias
-                      </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">{category.description}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-                      Principal
-                    </Badge>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300"
-                      onClick={() => handleEditCategory({
-                        name: category.name,
-                        description: category.description,
-                        color: category.color,
-                        isActive: true,
-                        parentId: ''
-                      })}
-                      title={`Editar categoria: ${category.name}`}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-red-600 hover:text-red-700">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {category.children.length > 0 && (
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext
-                      items={category.children.map(child => child.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      <div className="space-y-2">
-                        {category.children.map((child) => (
-                          <SortableSubcategory
-                            key={child.id}
-                            child={child}
-                            onEdit={handleEditCategory}
-                          />
-                        ))}
-                      </div>
-                    </SortableContext>
-                  </DndContext>
-                )}
-              </div>
+              <SortableCategory key={category.id} category={category} onEdit={handleEditCategory} />
             ))}
           </div>
 
@@ -448,6 +609,8 @@ export default function AdminCategories() {
           editData={editingCategory}
         />
       )}
-    </div>
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }

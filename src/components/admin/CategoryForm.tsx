@@ -74,7 +74,7 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
     <Sheet open={true} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto p-0">
         <div 
-          className="flex items-center justify-between w-full p-6"
+          className="flex items-center justify-between w-full p-6 relative"
           style={{ 
             backgroundColor: themeColors.primary,
             color: textColor,
@@ -90,6 +90,13 @@ export function CategoryForm({ onClose, onSubmit, editData }: CategoryFormProps)
               {editData ? 'Editar Categoria' : 'Nova Categoria'}
             </SheetTitle>
           </div>
+          <button 
+            onClick={onClose}
+            className="absolute right-6 top-6 text-white hover:text-white/80 transition-colors"
+            style={{ color: '#FFFFFF' }}
+          >
+            ✕
+          </button>
         </div>
         
         <SheetDescription className="sr-only">

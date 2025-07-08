@@ -106,15 +106,15 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
             <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <DropdownMenuLabel className="text-gray-900 dark:text-white">Escolher Tema</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {availableThemes.map((theme) => (
+               {availableThemes.map((theme) => (
                 <DropdownMenuItem
                   key={theme.name}
                   onClick={() => setTheme(theme.name)}
-                  className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white"
+                  className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white cursor-pointer"
                 >
                   <div className="flex items-center space-x-2">
                     <div 
-                      className="w-4 h-4 rounded-full border border-gray-300"
+                      className="w-4 h-4 rounded-full border border-gray-300 cursor-pointer"
                       style={{ backgroundColor: theme.colors.primary }}
                     />
                     <span>{theme.displayName}</span>
