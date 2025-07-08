@@ -177,7 +177,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
               <DropdownMenuItem asChild>
                 <Link 
                   to="/admin/perfil" 
-                  className="flex items-center text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="flex items-center text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                 >
                   <User className="mr-2 h-4 w-4" />
                   <span>Meu Perfil</span>
@@ -186,7 +186,7 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
               <DropdownMenuItem asChild>
                 <Link 
                   to="/admin/conta" 
-                  className="flex items-center text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="flex items-center text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                 >
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Configurações da Conta</span>

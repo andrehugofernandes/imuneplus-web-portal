@@ -83,9 +83,9 @@ export function AdminSidebar({ collapsed }: AdminSidebarProps) {
                   <div className={cn("flex items-center justify-center", collapsed ? "w-8 h-8" : "w-5 h-5")}>
                     <Icon size={24} className="flex-shrink-0" />
                   </div>
-                  {!collapsed && (
-                    <span className="ml-3 whitespace-nowrap">{item.name}</span>
-                  )}
+                   {!collapsed && (
+                     <span className="ml-3 whitespace-nowrap transition-opacity duration-300 delay-200">{item.name}</span>
+                   )}
                 </Link>
               );
 

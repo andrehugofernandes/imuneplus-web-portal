@@ -186,7 +186,7 @@ export function ModuleSection({
                                           className="bg-black text-white px-3 py-2 rounded-md text-sm whitespace-nowrap tooltip-high-z"
                                           side="top"
                                           align="start"
-                                          sideOffset={10}
+                                          sideOffset={60}
                                         >
                                           <p className="font-medium">{file}</p>
                                         </TooltipContent>
