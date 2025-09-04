@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FolderTree, Plus, Edit, Trash2, ChevronRight, GripVertical } from 'lucide-react';
+import { FolderTree, Plus, Edit, Trash2, ChevronRight, GripVertical, FolderPlus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ import {
 import { CategoryForm } from '@/components/admin/CategoryForm';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
+import { categoryService } from '@/services/categoryService';
 import {
   DndContext,
   closestCenter,
@@ -36,9 +37,10 @@ import { CSS } from '@dnd-kit/utilities';
 interface SortableSubcategoryProps {
   child: any;
   onEdit: (category: any) => void;
+  onAddSubcategory: (parentId: number) => void;
 }
 
-function SortableSubcategory({ child, onEdit }: SortableSubcategoryProps) {
+function SortableSubcategory({ child, onEdit, onAddSubcategory }: SortableSubcategoryProps) {
   const {
     attributes,
     listeners,
@@ -108,9 +110,10 @@ function SortableSubcategory({ child, onEdit }: SortableSubcategoryProps) {
 interface SortableCategoryProps {
   category: any;
   onEdit: (category: any) => void;
+  onAddSubcategory: (parentId: number) => void;
 }
 
-function SortableCategory({ category, onEdit }: SortableCategoryProps) {
+function SortableCategory({ category, onEdit, onAddSubcategory }: SortableCategoryProps) {
   const {
     attributes,
     listeners,
@@ -171,6 +174,15 @@ function SortableCategory({ category, onEdit }: SortableCategoryProps) {
           >
             <Edit className="h-4 w-4" />
           </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+            onClick={() => onAddSubcategory(category.id)}
+            title={`Adicionar subcategoria em: ${category.name}`}
+          >
+            <FolderPlus className="h-4 w-4" />
+          </Button>
           <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-red-600 hover:text-red-700">
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -184,6 +196,7 @@ function SortableCategory({ category, onEdit }: SortableCategoryProps) {
               key={child.id}
               child={child}
               onEdit={onEdit}
+              onAddSubcategory={onAddSubcategory}
             />
           ))}
         </div>
@@ -195,6 +208,7 @@ function SortableCategory({ category, onEdit }: SortableCategoryProps) {
 export default function AdminCategories() {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [subcategoryParentId, setSubcategoryParentId] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
@@ -271,6 +285,7 @@ export default function AdminCategories() {
     console.log('Category submitted:', data);
     setShowCategoryForm(false);
     setEditingCategory(null);
+    setSubcategoryParentId(null);
   };
 
   const handleEditCategory = (category: any) => {
@@ -288,6 +303,14 @@ export default function AdminCategories() {
   const handleNewCategory = () => {
     console.log('Creating new category');
     setEditingCategory(null);
+    setSubcategoryParentId(null);
+    setShowCategoryForm(true);
+  };
+
+  const handleAddSubcategory = (parentId: number) => {
+    console.log('Creating new subcategory for parent:', parentId);
+    setEditingCategory(null);
+    setSubcategoryParentId(parentId);
     setShowCategoryForm(true);
   };
 
@@ -316,9 +339,33 @@ export default function AdminCategories() {
           moveSubcategoryBetweenParents(activeItem, overItem);
         }
         
-        toast({
-          title: "Categoria atualizada com sucesso!",
-          description: "A hierarquia de categorias foi atualizada no banco de dados.",
+        // Persist changes to backend
+        categoryService.updateCategoryHierarchy({
+          action: getActionType(activeItem, overItem),
+          activeItem: {
+            categoryId: activeItem.id,
+            parentId: 'parentId' in activeItem ? activeItem.parentId : undefined,
+            position: 0,
+            type: activeItem.isParent ? 'parent' : 'child'
+          },
+          targetItem: {
+            categoryId: overItem.id,
+            parentId: 'parentId' in overItem ? overItem.parentId : undefined,
+            position: 0,
+            type: overItem.isParent ? 'parent' : 'child'
+          },
+          newHierarchy: categoriesHierarchy
+        }).then((result) => {
+          toast({
+            title: "Categoria atualizada com sucesso!",
+            description: result.message,
+          });
+        }).catch((error) => {
+          toast({
+            title: "Erro ao atualizar categoria",
+            description: "Ocorreu um erro ao salvar as alterações no banco de dados.",
+            variant: "destructive"
+          });
         });
       }
     }
@@ -361,6 +408,19 @@ export default function AdminCategories() {
         return category;
       });
     });
+  };
+
+  const getActionType = (activeItem: any, overItem: any): 'move_subcategory_to_parent' | 'move_parent_to_subcategory' | 'reorder_subcategories' | 'move_subcategory_between_parents' => {
+    if (activeItem.isChild && overItem.isParent) {
+      return 'move_subcategory_to_parent';
+    } else if (activeItem.isParent && overItem.isParent) {
+      return 'move_parent_to_subcategory';
+    } else if (activeItem.isChild && overItem.isChild && activeItem.parentId === overItem.parentId) {
+      return 'reorder_subcategories';
+    } else if (activeItem.isChild && overItem.isChild && activeItem.parentId !== overItem.parentId) {
+      return 'move_subcategory_between_parents';
+    }
+    return 'reorder_subcategories';
   };
   
   const moveParentToSubcategory = (parentCategory: any, targetParent: any) => {
@@ -548,7 +608,12 @@ export default function AdminCategories() {
         <CardContent>
           <div className="space-y-4">
             {paginatedCategories.map((category) => (
-              <SortableCategory key={category.id} category={category} onEdit={handleEditCategory} />
+              <SortableCategory 
+                key={category.id} 
+                category={category} 
+                onEdit={handleEditCategory} 
+                onAddSubcategory={handleAddSubcategory} 
+              />
             ))}
           </div>
 
@@ -604,9 +669,13 @@ export default function AdminCategories() {
           onClose={() => {
             setShowCategoryForm(false);
             setEditingCategory(null);
+            setSubcategoryParentId(null);
           }}
           onSubmit={handleCategorySubmit}
-          editData={editingCategory}
+          editData={subcategoryParentId ? { 
+            ...editingCategory, 
+            parentId: subcategoryParentId.toString() 
+          } : editingCategory}
         />
       )}
         </div>

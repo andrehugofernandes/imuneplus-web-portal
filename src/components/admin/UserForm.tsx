@@ -52,7 +52,7 @@ export function UserForm({ onClose, onSubmit, editData }: UserFormProps) {
     <Sheet open={true} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto p-0">
         <div 
-          className="flex items-center justify-between w-full p-6"
+          className="flex items-center justify-between w-full p-6 relative"
           style={{ 
             backgroundColor: themeColors.primary,
             color: textColor,
@@ -68,6 +68,13 @@ export function UserForm({ onClose, onSubmit, editData }: UserFormProps) {
               {editData ? 'Editar Usuário' : 'Novo Usuário'}
             </SheetTitle>
           </div>
+          <button 
+            onClick={onClose}
+            className="absolute right-6 top-6 text-white hover:text-white/80 transition-colors"
+            style={{ color: '#FFFFFF' }}
+          >
+            ✕
+          </button>
         </div>
 
         <div className="p-6">
