@@ -14,9 +14,9 @@ export default function AdminFiles() {
   const [editingFile, setEditingFile] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [typeFilter, setTypeFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
   const [files, setFiles] = useState([
     { id: 1, name: 'Documento 1.pdf', uploadDate: '2024-01-15', type: 'PDF', size: '2.4 MB', description: 'Documento importante sobre imunização', category: 'Campanhas', tags: 'vacina, importante' },
     { id: 2, name: 'Documento 2.pdf', uploadDate: '2024-01-10', type: 'PDF', size: '1.8 MB', description: 'Manual de procedimentos', category: 'Manuais', tags: 'manual, procedimento' },
@@ -76,11 +76,11 @@ export default function AdminFiles() {
       file.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       file.tags.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesType = typeFilter === '' || file.type === typeFilter;
-    const matchesCategory = categoryFilter === '' || file.category === categoryFilter;
+    const matchesType = typeFilter === '' || typeFilter === 'all' || file.type === typeFilter;
+    const matchesCategory = categoryFilter === '' || categoryFilter === 'all' || file.category === categoryFilter;
     
     let matchesDate = true;
-    if (dateFilter) {
+    if (dateFilter && dateFilter !== 'all') {
       const fileDate = new Date(file.uploadDate);
       const now = new Date();
       const diffDays = Math.ceil((now.getTime() - fileDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -105,12 +105,12 @@ export default function AdminFiles() {
 
   const clearFilters = () => {
     setSearchTerm('');
-    setTypeFilter('');
-    setCategoryFilter('');
-    setDateFilter('');
+    setTypeFilter('all');
+    setCategoryFilter('all');
+    setDateFilter('all');
   };
 
-  const hasActiveFilters = searchTerm || typeFilter || categoryFilter || dateFilter;
+  const hasActiveFilters = searchTerm || (typeFilter && typeFilter !== 'all') || (categoryFilter && categoryFilter !== 'all') || (dateFilter && dateFilter !== 'all');
 
   return (
     <div className="space-y-6">
@@ -225,7 +225,7 @@ export default function AdminFiles() {
                 className={`border-gray-200 dark:border-gray-600 ${showFilters ? 'bg-gray-100 dark:bg-gray-700' : ''} text-gray-700 dark:text-gray-300`}
               >
                 <Filter className="mr-2 h-4 w-4" />
-                Filtros {hasActiveFilters && `(${[typeFilter, categoryFilter, dateFilter].filter(Boolean).length})`}
+                Filtros {hasActiveFilters && `(${[typeFilter, categoryFilter, dateFilter].filter(f => f && f !== 'all').length})`}
               </Button>
             </div>
 
@@ -240,7 +240,7 @@ export default function AdminFiles() {
                       <SelectValue placeholder="Todos os tipos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos os tipos</SelectItem>
+                      <SelectItem value="all">Todos os tipos</SelectItem>
                       <SelectItem value="PDF">PDF</SelectItem>
                       <SelectItem value="DOCX">DOCX</SelectItem>
                       <SelectItem value="PPTX">PPTX</SelectItem>
@@ -258,7 +258,7 @@ export default function AdminFiles() {
                       <SelectValue placeholder="Todas as categorias" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as categorias</SelectItem>
+                      <SelectItem value="all">Todas as categorias</SelectItem>
                       <SelectItem value="Campanhas">Campanhas</SelectItem>
                       <SelectItem value="Manuais">Manuais</SelectItem>
                       <SelectItem value="Treinamento">Treinamento</SelectItem>
@@ -276,7 +276,7 @@ export default function AdminFiles() {
                       <SelectValue placeholder="Qualquer data" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Qualquer data</SelectItem>
+                      <SelectItem value="all">Qualquer data</SelectItem>
                       <SelectItem value="today">Hoje</SelectItem>
                       <SelectItem value="week">Última semana</SelectItem>
                       <SelectItem value="month">Último mês</SelectItem>
