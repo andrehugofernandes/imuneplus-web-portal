@@ -15,31 +15,41 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Edit, Trash2, Users } from 'lucide-react';
 import { UserForm } from '@/components/admin/UserForm';
+import { UserAvatar } from '@/components/ui/user-avatar';
 
 const mockUsers = [
   {
     id: 1,
     name: 'João Silva',
     email: 'joao.silva@saude.jaboatao.pe.gov.br',
-    role: 'Admin',
+    role: 'ADMIN' as const,
     status: 'Ativo',
     createdAt: '2024-01-15',
+    avatar_url: null,
+    job_title: 'Administrador do Sistema',
+    department: 'TI'
   },
   {
     id: 2,
     name: 'Maria Santos',
     email: 'maria.santos@saude.jaboatao.pe.gov.br',
-    role: 'Editor',
+    role: 'COORDENADOR' as const,
     status: 'Ativo',
     createdAt: '2024-01-10',
+    avatar_url: null,
+    job_title: 'Coordenadora de Enfermagem',
+    department: 'SAUDE'
   },
   {
     id: 3,
     name: 'Pedro Costa',
     email: 'pedro.costa@saude.jaboatao.pe.gov.br',
-    role: 'Visualizador',
+    role: 'USER' as const,
     status: 'Inativo',
     createdAt: '2024-01-05',
+    avatar_url: null,
+    job_title: 'Técnico em Enfermagem',
+    department: 'SAUDE'
   },
 ];
 
@@ -76,9 +86,9 @@ export function UsersTable() {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case 'Admin': return 'destructive';
-      case 'Editor': return 'default';
-      case 'Visualizador': return 'secondary';
+      case 'ADMIN': return 'destructive';
+      case 'COORDENADOR': return 'default';
+      case 'USER': return 'secondary';
       default: return 'outline';
     }
   };
@@ -114,9 +124,9 @@ export function UsersTable() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Todos">Todos</SelectItem>
-                <SelectItem value="Admin">Admin</SelectItem>
-                <SelectItem value="Editor">Editor</SelectItem>
-                <SelectItem value="Visualizador">Visualizador</SelectItem>
+                <SelectItem value="ADMIN">Admin</SelectItem>
+                <SelectItem value="COORDENADOR">Coordenador</SelectItem>
+                <SelectItem value="USER">Usuário</SelectItem>
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -137,8 +147,7 @@ export function UsersTable() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>E-mail</TableHead>
+                  <TableHead>Usuário</TableHead>
                   <TableHead>Função</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Criado em</TableHead>
@@ -148,11 +157,20 @@ export function UsersTable() {
               <TableBody>
                 {mockUsers.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <UserAvatar
+                        name={user.name}
+                        email={user.email}
+                        avatar_url={user.avatar_url}
+                        role={user.role}
+                        size="md"
+                        showEmail={true}
+                      />
+                    </TableCell>
                     <TableCell>
                       <Badge variant={getRoleBadgeVariant(user.role)}>
-                        {user.role}
+                        {user.role === 'ADMIN' ? 'Admin' : 
+                         user.role === 'COORDENADOR' ? 'Coordenador' : 'Usuário'}
                       </Badge>
                     </TableCell>
                     <TableCell>
