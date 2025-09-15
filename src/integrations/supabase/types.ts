@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          files_count: number
+          id: string
+          is_active: boolean
+          name: string
+          parent_id: string | null
+          position: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          files_count?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          parent_id?: string | null
+          position?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          files_count?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          parent_id?: string | null
+          position?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -96,6 +146,14 @@ export type Database = {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
           _user_id: string
+        }
+        Returns: boolean
+      }
+      update_category_hierarchy: {
+        Args: {
+          category_id: string
+          new_parent_id?: string
+          new_position?: number
         }
         Returns: boolean
       }
