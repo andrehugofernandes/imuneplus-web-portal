@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FolderTree, Plus, Edit, Trash2, ChevronRight, GripVertical, FolderPlus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import {
 import { CategoryForm } from '@/components/admin/CategoryForm';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
-import { categoryService } from '@/services/categoryService';
+import { categoryService, type Category } from '@/services/categoryService';
 import {
   DndContext,
   closestCenter,
@@ -35,9 +35,9 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 interface SortableSubcategoryProps {
-  child: any;
+  child: Category;
   onEdit: (category: any) => void;
-  onAddSubcategory: (parentId: number) => void;
+  onAddSubcategory: (parentId: string) => void;
 }
 
 function SortableSubcategory({ child, onEdit, onAddSubcategory }: SortableSubcategoryProps) {
@@ -76,7 +76,7 @@ function SortableSubcategory({ child, onEdit, onAddSubcategory }: SortableSubcat
         <FolderTree className="h-5 w-5 text-gray-600" />
         <div>
           <h4 className="text-sm font-medium text-gray-900 dark:text-white">{child.name}</h4>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{child.filesCount} arquivos</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{child.files_count} arquivos</p>
           <p className="text-xs text-gray-400 dark:text-gray-500">{child.description}</p>
         </div>
       </div>
@@ -93,7 +93,7 @@ function SortableSubcategory({ child, onEdit, onAddSubcategory }: SortableSubcat
             description: child.description,
             color: child.color,
             isActive: true,
-            parentId: child.parentId.toString()
+            parentId: child.parent_id
           })}
           title={`Editar subcategoria: ${child.name}`}
         >
@@ -108,9 +108,9 @@ function SortableSubcategory({ child, onEdit, onAddSubcategory }: SortableSubcat
 }
 
 interface SortableCategoryProps {
-  category: any;
+  category: Category;
   onEdit: (category: any) => void;
-  onAddSubcategory: (parentId: number) => void;
+  onAddSubcategory: (parentId: string) => void;
 }
 
 function SortableCategory({ category, onEdit, onAddSubcategory }: SortableCategoryProps) {
@@ -150,7 +150,7 @@ function SortableCategory({ category, onEdit, onAddSubcategory }: SortableCatego
           <div>
             <h3 className="font-medium text-gray-900 dark:text-white">{category.name}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {category.filesCount} arquivos • {category.children.length} subcategorias
+              {category.files_count} arquivos • {category.children?.length || 0} subcategorias
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500">{category.description}</p>
           </div>
@@ -189,9 +189,9 @@ function SortableCategory({ category, onEdit, onAddSubcategory }: SortableCatego
         </div>
       </div>
 
-      {category.children.length > 0 && (
+      {category.children && category.children.length > 0 && (
         <div className="space-y-2">
-          {category.children.map((child: any) => (
+          {category.children.map((child) => (
             <SortableSubcategory
               key={child.id}
               child={child}
@@ -208,71 +208,17 @@ function SortableCategory({ category, onEdit, onAddSubcategory }: SortableCatego
 export default function AdminCategories() {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
-  const [subcategoryParentId, setSubcategoryParentId] = useState<number | null>(null);
+  const [subcategoryParentId, setSubcategoryParentId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [categoriesHierarchy, setCategoriesHierarchy] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
   const { toast } = useToast();
 
   const itemsPerPage = 3;
-  const totalPages = 2;
 
-  const [categoriesHierarchy, setCategoriesHierarchy] = useState([
-    {
-      id: 1,
-      name: 'Imunização Infantil',
-      type: 'parent',
-      filesCount: 45,
-      color: '#0037C1',
-      description: 'Categoria para documentos relacionados à imunização infantil',
-      children: [
-        { id: 6, name: 'Vacinas 0-2 anos', type: 'child', filesCount: 25, parentId: 1, color: '#4169E1', description: 'Vacinas para crianças de 0 a 2 anos' },
-        { id: 7, name: 'Vacinas 2-12 anos', type: 'child', filesCount: 20, parentId: 1, color: '#6495ED', description: 'Vacinas para crianças de 2 a 12 anos' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Campanhas',
-      type: 'parent',
-      filesCount: 32,
-      color: '#32CD32',
-      description: 'Documentos de campanhas de vacinação',
-      children: [
-        { id: 8, name: 'Campanhas Sazonais', type: 'child', filesCount: 18, parentId: 2, color: '#90EE90', description: 'Campanhas sazonais de vacinação' },
-        { id: 9, name: 'Campanhas Especiais', type: 'child', filesCount: 14, parentId: 2, color: '#98FB98', description: 'Campanhas especiais de vacinação' }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Documentação Técnica',
-      type: 'parent',
-      filesCount: 28,
-      color: '#FF6347',
-      description: 'Documentos técnicos e manuais',
-      children: []
-    },
-    {
-      id: 4,
-      name: 'Treinamentos',
-      type: 'parent',
-      filesCount: 15,
-      color: '#FFD700',
-      description: 'Materiais de treinamento',
-      children: []
-    },
-    {
-      id: 5,
-      name: 'ImunePlay',
-      type: 'parent',
-      filesCount: 8,
-      color: '#9370DB',
-      description: 'Conteúdo educativo interativo',
-      children: [
-        { id: 10, name: 'Vídeos Educativos', type: 'child', filesCount: 5, parentId: 5, color: '#DA70D6', description: 'Vídeos educativos sobre vacinação' },
-        { id: 11, name: 'Animações', type: 'child', filesCount: 3, parentId: 5, color: '#DDA0DD', description: 'Animações educativas' }
-      ]
-    }
-  ]);
+  const totalPages = Math.ceil(categoriesHierarchy.length / itemsPerPage);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -281,11 +227,71 @@ export default function AdminCategories() {
     })
   );
 
-  const handleCategorySubmit = (data: any) => {
-    console.log('Category submitted:', data);
-    setShowCategoryForm(false);
-    setEditingCategory(null);
-    setSubcategoryParentId(null);
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const categories = await categoryService.getCategories();
+      setCategoriesHierarchy(categories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      toast({
+        title: "Erro ao carregar categorias",
+        description: "Não foi possível carregar as categorias.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const handleCategorySubmit = async (data: any) => {
+    try {
+      if (editingCategory) {
+        // Update existing category
+        await categoryService.updateCategory(editingCategory.id, {
+          name: data.name,
+          description: data.description,
+          color: data.color,
+          parent_id: data.parentId || null
+        });
+        toast({
+          title: "Categoria atualizada",
+          description: "A categoria foi atualizada com sucesso."
+        });
+      } else {
+        // Create new category
+        await categoryService.createCategory({
+          name: data.name,
+          description: data.description,
+          color: data.color,
+          parent_id: data.parentId || subcategoryParentId || null,
+          position: 0,
+          files_count: 0,
+          is_active: true
+        });
+        toast({
+          title: "Categoria criada",
+          description: "A categoria foi criada com sucesso."
+        });
+      }
+      
+      // Refresh categories
+      fetchCategories();
+      setShowCategoryForm(false);
+      setEditingCategory(null);
+      setSubcategoryParentId(null);
+    } catch (error) {
+      console.error('Error saving category:', error);
+      toast({
+        title: "Erro ao salvar categoria",
+        description: "Não foi possível salvar a categoria.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleEditCategory = (category: any) => {
@@ -307,14 +313,14 @@ export default function AdminCategories() {
     setShowCategoryForm(true);
   };
 
-  const handleAddSubcategory = (parentId: number) => {
+  const handleAddSubcategory = (parentId: string) => {
     console.log('Creating new subcategory for parent:', parentId);
     setEditingCategory(null);
     setSubcategoryParentId(parentId);
     setShowCategoryForm(true);
   };
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = async (event: any) => {
     const { active, over } = event;
 
     if (active.id !== over?.id && over) {
@@ -322,56 +328,64 @@ export default function AdminCategories() {
       const overItem = findItemById(over.id);
       
       if (activeItem && overItem) {
-        // Cenário 1: Subcategoria movendo entre categorias principais
-        if (activeItem.isChild && overItem.isParent) {
-          moveSubcategoryToParent(activeItem, overItem);
-        }
-        // Cenário 2: Categoria principal virando subcategoria
-        else if (activeItem.isParent && overItem.isParent) {
-          moveParentToSubcategory(activeItem, overItem);
-        }
-        // Cenário 3: Reordenação dentro da mesma categoria principal
-        else if (activeItem.isChild && overItem.isChild && 'parentId' in activeItem && 'parentId' in overItem && activeItem.parentId === overItem.parentId) {
-          reorderSubcategories(activeItem, overItem);
-        }
-        // Cenário 4: Subcategoria movendo para outra categoria
-        else if (activeItem.isChild && overItem.isChild && 'parentId' in activeItem && 'parentId' in overItem && activeItem.parentId !== overItem.parentId) {
-          moveSubcategoryBetweenParents(activeItem, overItem);
-        }
-        
-        // Persist changes to backend
-        categoryService.updateCategoryHierarchy({
-          action: getActionType(activeItem, overItem),
-          activeItem: {
-            categoryId: activeItem.id,
-            parentId: 'parentId' in activeItem ? activeItem.parentId : undefined,
-            position: 0,
-            type: activeItem.isParent ? 'parent' : 'child'
-          },
-          targetItem: {
-            categoryId: overItem.id,
-            parentId: 'parentId' in overItem ? overItem.parentId : undefined,
-            position: 0,
-            type: overItem.isParent ? 'parent' : 'child'
-          },
-          newHierarchy: categoriesHierarchy
-        }).then((result) => {
+        try {
+          // Cenário 1: Subcategoria movendo entre categorias principais
+          if (activeItem.isChild && overItem.isParent) {
+            moveSubcategoryToParent(activeItem, overItem);
+          }
+          // Cenário 2: Categoria principal virando subcategoria
+          else if (activeItem.isParent && overItem.isParent) {
+            moveParentToSubcategory(activeItem, overItem);
+          }
+          // Cenário 3: Reordenação dentro da mesma categoria principal
+          else if (activeItem.isChild && overItem.isChild && 'parentId' in activeItem && 'parentId' in overItem && activeItem.parentId === overItem.parentId) {
+            reorderSubcategories(activeItem, overItem);
+          }
+          // Cenário 4: Subcategoria movendo para outra categoria
+          else if (activeItem.isChild && overItem.isChild && 'parentId' in activeItem && 'parentId' in overItem && activeItem.parentId !== overItem.parentId) {
+            moveSubcategoryBetweenParents(activeItem, overItem);
+          }
+          
+          // Persist changes to backend
+          await categoryService.updateCategoryHierarchy({
+            action: getActionType(activeItem, overItem),
+            activeItem: {
+              categoryId: activeItem.id,
+              parentId: 'parentId' in activeItem ? activeItem.parentId : undefined,
+              position: 0,
+              type: activeItem.isParent ? 'parent' : 'child'
+            },
+            targetItem: {
+              categoryId: overItem.id,
+              parentId: 'parentId' in overItem ? overItem.parentId : undefined,
+              position: 0,
+              type: overItem.isParent ? 'parent' : 'child'
+            },
+            newHierarchy: categoriesHierarchy
+          });
+          
           toast({
             title: "Categoria atualizada com sucesso!",
-            description: result.message,
+            description: "A hierarquia foi atualizada no banco de dados.",
           });
-        }).catch((error) => {
+          
+          // Refresh categories to get updated data
+          fetchCategories();
+        } catch (error) {
+          console.error('Error updating category hierarchy:', error);
           toast({
             title: "Erro ao atualizar categoria",
             description: "Ocorreu um erro ao salvar as alterações no banco de dados.",
             variant: "destructive"
           });
-        });
+          // Revert local changes by refetching
+          fetchCategories();
+        }
       }
     }
   };
   
-  const findItemById = (id: number) => {
+  const findItemById = (id: string) => {
     // Procurar nas categorias principais
     const parentCategory = categoriesHierarchy.find(cat => cat.id === id);
     if (parentCategory) {
@@ -380,7 +394,7 @@ export default function AdminCategories() {
     
     // Procurar nas subcategorias
     for (const category of categoriesHierarchy) {
-      const childCategory = category.children.find(child => child.id === id);
+      const childCategory = category.children?.find(child => child.id === id);
       if (childCategory) {
         return { ...childCategory, isParent: false, isChild: true, parentId: category.id };
       }
@@ -392,17 +406,17 @@ export default function AdminCategories() {
     setCategoriesHierarchy(prevCategories => {
       return prevCategories.map(category => {
         // Remover da categoria antiga
-        if (category.id === subcategory.parentId) {
+        if (category.id === subcategory.parent_id) {
           return {
             ...category,
-            children: category.children.filter(child => child.id !== subcategory.id)
+            children: (category.children || []).filter(child => child.id !== subcategory.id)
           };
         }
         // Adicionar à nova categoria
         if (category.id === newParent.id) {
           return {
             ...category,
-            children: [...category.children, { ...subcategory, parentId: newParent.id }]
+            children: [...(category.children || []), { ...subcategory, parent_id: newParent.id }]
           };
         }
         return category;
@@ -431,18 +445,17 @@ export default function AdminCategories() {
         if (category.id === targetParent.id) {
           const newSubcategory = {
             ...parentCategory,
-            type: 'child',
-            parentId: targetParent.id,
+            parent_id: targetParent.id,
             children: undefined
           };
           
-          const newChildren = [...category.children, newSubcategory];
+          const newChildren = [...(category.children || []), newSubcategory];
           
           // Adicionar as antigas subcategorias como subcategorias do target
           if (parentCategory.children && parentCategory.children.length > 0) {
-            newChildren.push(...parentCategory.children.map((child: any) => ({
+            newChildren.push(...parentCategory.children.map((child) => ({
               ...child,
-              parentId: targetParent.id
+              parent_id: targetParent.id
             })));
           }
           
@@ -460,12 +473,13 @@ export default function AdminCategories() {
     setCategoriesHierarchy(prevCategories =>
       prevCategories.map(category => {
         if (category.id === activeChild.parentId) {
-          const oldIndex = category.children.findIndex(child => child.id === activeChild.id);
-          const newIndex = category.children.findIndex(child => child.id === overChild.id);
+          const children = category.children || [];
+          const oldIndex = children.findIndex(child => child.id === activeChild.id);
+          const newIndex = children.findIndex(child => child.id === overChild.id);
           
           return {
             ...category,
-            children: arrayMove(category.children, oldIndex, newIndex)
+            children: arrayMove(children, oldIndex, newIndex)
           };
         }
         return category;
@@ -480,14 +494,15 @@ export default function AdminCategories() {
         if (category.id === activeChild.parentId) {
           return {
             ...category,
-            children: category.children.filter(child => child.id !== activeChild.id)
+            children: (category.children || []).filter(child => child.id !== activeChild.id)
           };
         }
         // Adicionar à categoria do over item
         if (category.id === overChild.parentId) {
-          const overIndex = category.children.findIndex(child => child.id === overChild.id);
-          const newChildren = [...category.children];
-          newChildren.splice(overIndex + 1, 0, { ...activeChild, parentId: overChild.parentId });
+          const children = category.children || [];
+          const overIndex = children.findIndex(child => child.id === overChild.id);
+          const newChildren = [...children];
+          newChildren.splice(overIndex + 1, 0, { ...activeChild, parent_id: overChild.parentId });
           
           return {
             ...category,
@@ -505,15 +520,23 @@ export default function AdminCategories() {
   );
 
   const getAllItemsForDnd = () => {
-    const items: any[] = [];
+    const items: string[] = [];
     categoriesHierarchy.forEach(category => {
       items.push(category.id);
-      category.children.forEach((child: any) => {
+      (category.children || []).forEach((child) => {
         items.push(child.id);
       });
     });
     return items;
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-gray-600 dark:text-gray-400">Carregando categorias...</div>
+      </div>
+    );
+  }
 
   return (
     <DndContext
@@ -674,7 +697,7 @@ export default function AdminCategories() {
           onSubmit={handleCategorySubmit}
           editData={subcategoryParentId ? { 
             ...editingCategory, 
-            parentId: subcategoryParentId.toString() 
+            parentId: subcategoryParentId 
           } : editingCategory}
         />
       )}

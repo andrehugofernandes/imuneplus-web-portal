@@ -1,6 +1,5 @@
-
-import { useState } from 'react';
-import { Edit, File, Upload } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Save, File, Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,11 +8,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useToast } from '@/hooks/use-toast';
+import { fileService, type FileData } from '@/services/fileService';
+import { categoryService, type Category } from '@/services/categoryService';
 
 interface FileEditFormData {
   title: string;
   description: string;
-  category: string;
+  category_id: string;
   tags: string;
   file?: File | null;
 }
@@ -21,44 +23,104 @@ interface FileEditFormData {
 interface FileEditFormProps {
   onClose: () => void;
   onSubmit?: (data: FileEditFormData) => void;
-  editData: {
-    id: number;
-    name: string;
-    description?: string;
-    category?: string;
-    tags?: string;
-  };
+  editData: FileData;
 }
 
 export function FileEditForm({ onClose, onSubmit, editData }: FileEditFormProps) {
   const [formData, setFormData] = useState<FileEditFormData>({
-    title: editData.name || '',
-    description: editData.description || '',
-    category: editData.category || '',
-    tags: editData.tags || '',
+    title: editData?.title || '',
+    description: editData?.description || '',
+    category_id: editData?.category_id || '',
+    tags: editData?.tags?.join(', ') || '',
     file: null,
   });
 
   const [dragActive, setDragActive] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+  const { toast } = useToast();
 
-  const categories = [
-    { id: '1', name: 'Imunização Infantil' },
-    { id: '2', name: 'Campanhas' },
-    { id: '3', name: 'Documentação Técnica' },
-    { id: '4', name: 'Treinamentos' },
-    { id: '5', name: 'ImunePlay' },
-  ];
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Updating file:', editData.id, formData);
-    if (onSubmit) {
-      onSubmit(formData);
+  const fetchCategories = async () => {
+    try {
+      const allCategories = await categoryService.getCategories();
+      setCategories(allCategories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      toast({
+        title: "Erro ao carregar categorias",
+        description: "Não foi possível carregar as categorias.",
+        variant: "destructive"
+      });
     }
-    onClose();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.title.trim()) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, preencha o título.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      const tags = formData.tags
+        ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+        : [];
+
+      // If a new file was uploaded, upload it first
+      if (formData.file && editData.id) {
+        await fileService.uploadFile({
+          title: formData.title,
+          description: formData.description,
+          category_id: formData.category_id || undefined,
+          tags,
+          file: formData.file
+        });
+
+        // Delete the old file
+        await fileService.deleteFile(editData.id);
+      } else if (editData.id) {
+        // Just update the metadata
+        await fileService.updateFile(editData.id, {
+          title: formData.title,
+          description: formData.description,
+          category_id: formData.category_id || undefined,
+          tags
+        });
+      }
+
+      toast({
+        title: "Arquivo atualizado",
+        description: "As informações do arquivo foram atualizadas com sucesso."
+      });
+
+      if (onSubmit) {
+        onSubmit(formData);
+      }
+      onClose();
+    } catch (error) {
+      console.error('Error updating file:', error);
+      toast({
+        title: "Erro na atualização",
+        description: "Não foi possível atualizar o arquivo. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleInputChange = (field: keyof FileEditFormData, value: string | File | null) => {
@@ -105,7 +167,7 @@ export function FileEditForm({ onClose, onSubmit, editData }: FileEditFormProps)
             <Badge 
               className="h-8 w-8 rounded-full p-0 flex items-center justify-center bg-white/20"
             >
-              <Edit className="h-4 w-4" style={{ color: textColor }} />
+              <File className="h-4 w-4" style={{ color: textColor }} />
             </Badge>
             <SheetTitle className="text-lg font-semibold" style={{ color: textColor }}>
               Editar Arquivo
@@ -114,7 +176,7 @@ export function FileEditForm({ onClose, onSubmit, editData }: FileEditFormProps)
         </div>
         
         <SheetDescription className="sr-only">
-          Formulário para edição de arquivo existente
+          Formulário para editar arquivo existente
         </SheetDescription>
 
         <div className="p-6">
@@ -149,9 +211,9 @@ export function FileEditForm({ onClose, onSubmit, editData }: FileEditFormProps)
 
             <div className="space-y-2">
               <Label htmlFor="fileCategory" className="text-gray-700 dark:text-gray-300">
-                Categoria *
+                Categoria
               </Label>
-              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+              <Select value={formData.category_id} onValueChange={(value) => handleInputChange('category_id', value)}>
                 <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
@@ -180,7 +242,7 @@ export function FileEditForm({ onClose, onSubmit, editData }: FileEditFormProps)
 
             <div className="space-y-2">
               <Label className="text-gray-700 dark:text-gray-300">
-                Substituir Arquivo (Opcional)
+                Substituir Arquivo (opcional)
               </Label>
               <div
                 className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
@@ -223,6 +285,7 @@ export function FileEditForm({ onClose, onSubmit, editData }: FileEditFormProps)
             <div className="flex justify-end pt-4">
               <Button
                 type="submit"
+                disabled={loading}
                 style={{ 
                   backgroundColor: themeColors.primary,
                   color: textColor,
@@ -235,7 +298,17 @@ export function FileEditForm({ onClose, onSubmit, editData }: FileEditFormProps)
                   e.currentTarget.style.backgroundColor = themeColors.primary;
                 }}
               >
-                Salvar Alterações
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Salvar Alterações
+                  </>
+                )}
               </Button>
             </div>
           </form>

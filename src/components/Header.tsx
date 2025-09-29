@@ -73,10 +73,10 @@ export function Header() {
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </Button>
 
-            <Link to="/admin">
+            <Link to="/auth">
               <Button variant="outline" size="sm" className="flex items-center space-x-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                 <Shield size={16} />
-                <span>Admin</span>
+                <span>Login</span>
               </Button>
             </Link>
           </nav>

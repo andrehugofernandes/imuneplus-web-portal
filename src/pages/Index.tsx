@@ -13,7 +13,7 @@ import {
 import { Footer } from "../components/Footer";
 
 const Index = () => {
-  return (
+return (
     <ThemeProvider>
       <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
         <Header />
