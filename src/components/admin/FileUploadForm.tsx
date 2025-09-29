@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { Upload, File } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Upload, File, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,11 +9,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useToast } from '@/hooks/use-toast';
+import { fileService } from '@/services/fileService';
+import { categoryService, type Category } from '@/services/categoryService';
 
 interface FileUploadFormData {
   title: string;
   description: string;
-  category: string;
+  category_id: string;
   tags: string;
   file: File | null;
 }
@@ -27,31 +30,83 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
   const [formData, setFormData] = useState<FileUploadFormData>({
     title: '',
     description: '',
-    category: '',
+    category_id: '',
     tags: '',
     file: null,
   });
 
   const [dragActive, setDragActive] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+  const { toast } = useToast();
 
-  const categories = [
-    { id: '1', name: 'Imunização Infantil' },
-    { id: '2', name: 'Campanhas' },
-    { id: '3', name: 'Documentação Técnica' },
-    { id: '4', name: 'Treinamentos' },
-    { id: '5', name: 'ImunePlay' },
-  ];
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Submitting file upload data:', formData);
-    if (onSubmit) {
-      onSubmit(formData);
+  const fetchCategories = async () => {
+    try {
+      const allCategories = await categoryService.getCategories();
+      setCategories(allCategories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      toast({
+        title: "Erro ao carregar categorias",
+        description: "Não foi possível carregar as categorias.",
+        variant: "destructive"
+      });
     }
-    onClose();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.file || !formData.title.trim()) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha o título e selecione um arquivo.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      const tags = formData.tags
+        ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+        : [];
+
+      await fileService.uploadFile({
+        title: formData.title,
+        description: formData.description,
+        category_id: formData.category_id || undefined,
+        tags,
+        file: formData.file
+      });
+
+      toast({
+        title: "Upload realizado com sucesso",
+        description: "O arquivo foi enviado e salvo no sistema."
+      });
+
+      if (onSubmit) {
+        onSubmit(formData);
+      }
+      onClose();
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Erro no upload",
+        description: "Não foi possível fazer o upload do arquivo. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleInputChange = (field: keyof FileUploadFormData, value: string | File | null) => {
@@ -144,7 +199,7 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
               <Label htmlFor="fileCategory" className="text-gray-700 dark:text-gray-300">
                 Categoria *
               </Label>
-              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+              <Select value={formData.category_id} onValueChange={(value) => handleInputChange('category_id', value)}>
                 <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
@@ -217,6 +272,7 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
             <div className="flex justify-end pt-4">
               <Button
                 type="submit"
+                disabled={loading}
                 style={{ 
                   backgroundColor: themeColors.primary,
                   color: textColor,
@@ -229,7 +285,14 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
                   e.currentTarget.style.backgroundColor = themeColors.primary;
                 }}
               >
-                Fazer Upload
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Fazendo Upload...
+                  </>
+                ) : (
+                  'Fazer Upload'
+                )}
               </Button>
             </div>
           </form>

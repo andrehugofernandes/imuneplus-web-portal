@@ -64,6 +64,65 @@ export type Database = {
           },
         ]
       }
+      files: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description: string | null
+          download_count: number
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          is_active: boolean
+          original_filename: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          download_count?: number
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          is_active?: boolean
+          original_filename: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          download_count?: number
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          is_active?: boolean
+          original_filename?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

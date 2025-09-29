@@ -154,7 +154,7 @@ export function ModuleSection({
                       >
                         <CollapsibleTrigger asChild>
                           <button
-                            className={`w-full ${buttonColor} text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center justify-between relative z-[10]`}
+                            className={`w-full ${buttonColor} text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-102 shadow-sm flex items-center justify-between relative z-[10]`}
                           >
                             <span>{category.name}</span>
                             <ChevronDown 

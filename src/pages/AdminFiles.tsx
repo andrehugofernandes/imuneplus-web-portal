@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileText, Upload, Search, Filter, Download, Trash2, Edit, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FileUploadForm } from '@/components/admin/FileUploadForm';
 import { FileEditForm } from '@/components/admin/FileEditForm';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useToast } from '@/hooks/use-toast';
+import { fileService, type FileData } from '@/services/fileService';
+import { categoryService, type Category } from '@/services/categoryService';
 
 export default function AdminFiles() {
   const [showUploadForm, setShowUploadForm] = useState(false);
@@ -17,20 +20,48 @@ export default function AdminFiles() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
-  const [files, setFiles] = useState([
-    { id: 1, name: 'Documento 1.pdf', uploadDate: '2024-01-15', type: 'PDF', size: '2.4 MB', description: 'Documento importante sobre imunização', category: 'Campanhas', tags: 'vacina, importante' },
-    { id: 2, name: 'Documento 2.pdf', uploadDate: '2024-01-10', type: 'PDF', size: '1.8 MB', description: 'Manual de procedimentos', category: 'Manuais', tags: 'manual, procedimento' },
-    { id: 3, name: 'Apresentação 1.pptx', uploadDate: '2024-01-08', type: 'PPTX', size: '5.2 MB', description: 'Apresentação para treinamento', category: 'Treinamento', tags: 'treinamento, apresentação' },
-    { id: 4, name: 'Relatório.docx', uploadDate: '2024-01-12', type: 'DOCX', size: '1.2 MB', description: 'Relatório mensal de atividades', category: 'Relatórios', tags: 'relatório, mensal' },
-    { id: 5, name: 'Manual_Usuario.pdf', uploadDate: '2024-01-05', type: 'PDF', size: '3.1 MB', description: 'Manual do usuário do sistema', category: 'Manuais', tags: 'manual, usuário' },
-  ]);
+  const [files, setFiles] = useState<FileData[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const { themeColors, isLightColor } = useTheme();
   const textColor = isLightColor(themeColors.primary) ? '#000000' : '#FFFFFF';
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchFiles();
+    fetchCategories();
+  }, []);
+
+  const fetchFiles = async () => {
+    try {
+      setLoading(true);
+      const data = await fileService.getFiles();
+      setFiles(data);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+      toast({
+        title: "Erro ao carregar arquivos",
+        description: "Não foi possível carregar a lista de arquivos.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const data = await categoryService.getCategories();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleUploadSubmit = (data: any) => {
-    console.log('File upload data:', data);
     setShowUploadForm(false);
+    fetchFiles(); // Refresh the file list
   };
 
   const handleEditSubmit = (data: any) => {
@@ -46,10 +77,23 @@ export default function AdminFiles() {
     setEditingFile(file);
   };
 
-  const handleDeleteFile = (fileId: number) => {
+  const handleDeleteFile = async (fileId: string) => {
     if (window.confirm('Tem certeza que deseja deletar este arquivo?')) {
-      setFiles(prevFiles => prevFiles.filter(file => file.id !== fileId));
-      console.log(`Arquivo ${fileId} deletado`);
+      try {
+        await fileService.deleteFile(fileId);
+        toast({
+          title: "Arquivo deletado",
+          description: "O arquivo foi removido com sucesso."
+        });
+        fetchFiles(); // Refresh the file list
+      } catch (error) {
+        console.error('Error deleting file:', error);
+        toast({
+          title: "Erro ao deletar arquivo",
+          description: "Não foi possível deletar o arquivo.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -69,19 +113,53 @@ export default function AdminFiles() {
     return `há ${Math.floor(diffDays / 30)} meses`;
   };
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const handleDownloadFile = async (file: FileData) => {
+    try {
+      if (file.id) {
+        await fileService.incrementDownloadCount(file.id);
+      }
+      const blob = await fileService.downloadFile(file.file_path);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.original_filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast({
+        title: "Erro no download",
+        description: "Não foi possível baixar o arquivo.",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Filter and search logic
   const filteredFiles = files.filter(file => {
     const matchesSearch = searchTerm === '' || 
-      file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      file.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      file.tags.toLowerCase().includes(searchTerm.toLowerCase());
+      file.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (file.description && file.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (file.tags && file.tags.join(' ').toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesType = typeFilter === '' || typeFilter === 'all' || file.type === typeFilter;
-    const matchesCategory = categoryFilter === '' || categoryFilter === 'all' || file.category === categoryFilter;
+    const matchesType = typeFilter === '' || typeFilter === 'all' || file.file_type === typeFilter;
+    
+    const fileCategory = categories.find(cat => cat.id === file.category_id);
+    const matchesCategory = categoryFilter === '' || categoryFilter === 'all' || (fileCategory && fileCategory.name === categoryFilter);
     
     let matchesDate = true;
     if (dateFilter && dateFilter !== 'all') {
-      const fileDate = new Date(file.uploadDate);
+      const fileDate = new Date(file.created_at || '');
       const now = new Date();
       const diffDays = Math.ceil((now.getTime() - fileDate.getTime()) / (1000 * 60 * 60 * 24));
       
@@ -259,10 +337,11 @@ export default function AdminFiles() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todas as categorias</SelectItem>
-                      <SelectItem value="Campanhas">Campanhas</SelectItem>
-                      <SelectItem value="Manuais">Manuais</SelectItem>
-                      <SelectItem value="Treinamento">Treinamento</SelectItem>
-                      <SelectItem value="Relatórios">Relatórios</SelectItem>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.name}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -313,47 +392,62 @@ export default function AdminFiles() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredFiles.map((file) => (
-              <div key={file.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
-                <div className="flex items-center space-x-4">
-                  <FileText className="h-8 w-8 text-blue-600" />
-                  <div>
-                    <h3 className="font-medium text-gray-900 dark:text-white">{file.name}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {getTimeAgo(file.uploadDate)} • {file.size}
-                    </p>
+              {filteredFiles.map((file) => {
+                const fileCategory = categories.find(cat => cat.id === file.category_id);
+                const fileType = file.file_type.split('/')[1]?.toUpperCase() || file.file_type.toUpperCase();
+                
+                return (
+                <div key={file.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+                  <div className="flex items-center space-x-4">
+                    <FileText className="h-8 w-8 text-blue-600" />
+                    <div>
+                      <h3 className="font-medium text-gray-900 dark:text-white">{file.title}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {getTimeAgo(file.created_at || '')} • {formatFileSize(file.file_size)}
+                      </p>
+                      {file.description && (
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{file.description}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                      {fileType}
+                    </Badge>
+                    {fileCategory && (
+                      <Badge variant="outline" className="border-blue-200 dark:border-blue-600 text-blue-600">
+                        {fileCategory.name}
+                      </Badge>
+                    )}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                      onClick={() => handleDownloadFile(file)}
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      Baixar
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-blue-200 dark:border-blue-600 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      onClick={() => handleEditFile(file)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-red-200 dark:border-red-600 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      onClick={() => handleDeleteFile(file.id!)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                    {file.type}
-                  </Badge>
-                  <Badge variant="outline" className="border-blue-200 dark:border-blue-600 text-blue-600">
-                    {file.category}
-                  </Badge>
-                  <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">
-                    <Download className="h-4 w-4 mr-1" />
-                    Baixar
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-blue-200 dark:border-blue-600 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                    onClick={() => handleEditFile(file)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-red-200 dark:border-red-600 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                    onClick={() => handleDeleteFile(file.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>
