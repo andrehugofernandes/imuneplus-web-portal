@@ -170,27 +170,23 @@ export function ModuleSection({
                               <CarouselContent className="-ml-2">
                                 {category.files.map((file, index) => (
                                   <CarouselItem key={index} className="pl-2 md:basis-1/2 lg:basis-1/3">
-                                    <div className="p-2 relative">
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <button
-                                            className={`w-full ${buttonColor} text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm flex items-center space-x-2 relative z-[50]`}
-                                            onMouseEnter={() => handleTooltipOpen(file)}
-                                            onMouseLeave={handleTooltipClose}
-                                          >
-                                            <FileText className="h-4 w-4 flex-shrink-0" />
-                                            <span className="truncate text-left">{file}</span>
-                                          </button>
-                                        </TooltipTrigger>
-                                        <TooltipContent 
-                                          className="bg-black text-white px-3 py-2 rounded-md text-sm whitespace-nowrap tooltip-high-z"
-                                          side="top"
-                                          align="start"
-                                          sideOffset={60}
-                                        >
-                                          <p className="font-medium">{file}</p>
-                                        </TooltipContent>
-                                      </Tooltip>
+                                    <div className="p-2 relative group">
+                                      <button
+                                        className={`w-full ${buttonColor} text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-102 shadow-sm flex items-center space-x-2 relative z-[15]`}
+                                        onMouseEnter={() => handleTooltipOpen(file)}
+                                        onMouseLeave={handleTooltipClose}
+                                      >
+                                        <FileText className="h-4 w-4 flex-shrink-0" />
+                                        <span className="truncate text-left">{file}</span>
+                                      </button>
+                                      {/* Badge flutuante com nome completo */}
+                                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100] pointer-events-none">
+                                        <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1.5 rounded-md text-xs font-medium shadow-lg whitespace-nowrap max-w-xs">
+                                          {file}
+                                        </div>
+                                        {/* Seta apontando para baixo */}
+                                        <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-gray-900 dark:bg-gray-100 transform rotate-45"></div>
+                                      </div>
                                     </div>
                                   </CarouselItem>
                                 ))}
