@@ -2,10 +2,10 @@
 "use client";
 
 import { FileText, BookOpen, Video, GraduationCap, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 interface ModuleSectionProps {
   id: string;
@@ -38,6 +38,7 @@ export function ModuleSection({
   textAlign = 'left'
 }: ModuleSectionProps) {
   const [openAccordions, setOpenAccordions] = useState<{[key: string]: boolean}>({});
+  const [hoveredFile, setHoveredFile] = useState<{name: string, rect: DOMRect} | null>(null);
 
   const bgColor = color === "orange" ? "bg-orange-50 dark:bg-orange-900/20" :
                   color === "blue" ? "bg-blue-50 dark:bg-blue-900/20" :
@@ -71,11 +72,14 @@ export function ModuleSection({
     }));
   };
 
-  const handleTooltipOpen = (fileName: string) => {
+  const handleFileHover = (fileName: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setHoveredFile({ name: fileName, rect });
     console.log('Tooltip opening for file:', fileName);
   };
 
-  const handleTooltipClose = () => {
+  const handleFileLeave = () => {
+    setHoveredFile(null);
     console.log('Tooltip closing');
   };
 
@@ -89,7 +93,28 @@ export function ModuleSection({
   ];
 
   return (
-    <TooltipProvider delayDuration={100}>
+    <>
+      {/* Portal para o badge - renderizado fora da hierarquia */}
+      {hoveredFile && (
+        <div 
+          className="fixed z-[9999] pointer-events-none"
+          style={{
+            left: hoveredFile.rect.left + hoveredFile.rect.width / 2,
+            top: hoveredFile.rect.bottom + 8,
+            transform: 'translateX(-50%)'
+          }}
+        >
+          <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1.5 rounded-md text-xs font-medium shadow-lg whitespace-nowrap max-w-xs animate-in fade-in-0 slide-in-from-top-1 duration-200">
+            {hoveredFile.name}
+          </div>
+          {/* Seta apontando para cima */}
+          <div 
+            className="absolute left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-gray-100 transform rotate-45"
+            style={{ top: '-4px' }}
+          ></div>
+        </div>
+      )}
+      
       <section id={id} className={`py-20 ${bgColor}`}>
         <div className="container mx-auto px-4">
           <div className={`grid lg:grid-cols-5 gap-8 items-start ${reversed ? 'lg:flex-row-reverse' : ''}`}>
@@ -170,23 +195,15 @@ export function ModuleSection({
                               <CarouselContent className="-ml-2">
                                 {category.files.map((file, index) => (
                                   <CarouselItem key={index} className="pl-2 md:basis-1/2 lg:basis-1/3">
-                                    <div className="p-2 relative group">
+                                    <div className="p-2">
                                       <button
-                                        className={`w-full ${buttonColor} text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-102 shadow-sm flex items-center space-x-2 relative z-[15]`}
-                                        onMouseEnter={() => handleTooltipOpen(file)}
-                                        onMouseLeave={handleTooltipClose}
+                                        className={`w-full ${buttonColor} text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-102 shadow-sm flex items-center space-x-2`}
+                                        onMouseEnter={(e) => handleFileHover(file, e)}
+                                        onMouseLeave={handleFileLeave}
                                       >
                                         <FileText className="h-4 w-4 flex-shrink-0" />
                                         <span className="truncate text-left">{file}</span>
                                       </button>
-                                      {/* Badge flutuante com nome completo */}
-                                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100] pointer-events-none">
-                                        <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1.5 rounded-md text-xs font-medium shadow-lg whitespace-nowrap max-w-xs">
-                                          {file}
-                                        </div>
-                                        {/* Seta apontando para cima */}
-                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-[-4px] w-2 h-2 bg-gray-900 dark:bg-gray-100 transform rotate-45"></div>
-                                      </div>
                                     </div>
                                   </CarouselItem>
                                 ))}
@@ -216,7 +233,7 @@ export function ModuleSection({
           </div>
         </div>
       </section>
-    </TooltipProvider>
+    </>
   );
 }
 
