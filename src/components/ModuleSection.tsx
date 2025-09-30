@@ -100,17 +100,17 @@ export function ModuleSection({
           className="fixed z-[9999] pointer-events-none"
           style={{
             left: hoveredFile.rect.left + hoveredFile.rect.width / 2,
-            top: hoveredFile.rect.bottom + 8,
-            transform: 'translateX(-50%)'
+            top: hoveredFile.rect.top - 8,
+            transform: 'translate(-50%, -100%)'
           }}
         >
-          <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1.5 rounded-md text-xs font-medium shadow-lg whitespace-nowrap max-w-xs animate-in fade-in-0 slide-in-from-top-1 duration-200">
+          <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1.5 rounded-md text-xs font-medium shadow-lg whitespace-nowrap max-w-xs animate-in fade-in-0 slide-in-from-bottom-1 duration-200">
             {hoveredFile.name}
           </div>
-          {/* Seta apontando para cima */}
+          {/* Seta apontando para baixo */}
           <div 
             className="absolute left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-gray-100 transform rotate-45"
-            style={{ top: '-4px' }}
+            style={{ bottom: '-4px' }}
           ></div>
         </div>
       )}
@@ -190,11 +190,11 @@ export function ModuleSection({
                           </button>
                         </CollapsibleTrigger>
                         <CollapsibleContent className="mt-3">
-                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 min-h-[150px] relative overflow-visible">
+                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 pt-12 min-h-[150px] relative overflow-visible">
                             <Carousel className="w-full">
                               <CarouselContent className="-ml-2">
                                 {category.files.map((file, index) => (
-                                  <CarouselItem key={index} className="pl-2 md:basis-1/2 lg:basis-1/3">
+                                  <CarouselItem key={index} className="pl-2 md:basis-1/2 lg:basis-1/3 mt-8">
                                     <div className="p-2">
                                       <button
                                         className={`w-full ${buttonColor} text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-102 shadow-sm flex items-center space-x-2`}
