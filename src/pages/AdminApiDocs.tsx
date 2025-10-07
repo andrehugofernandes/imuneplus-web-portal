@@ -142,7 +142,7 @@ export default function AdminApiDocs() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="users" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-300 dark:bg-gray-700 p-2">
               <TabsTrigger value="users">Usuários</TabsTrigger>
               <TabsTrigger value="files">Arquivos</TabsTrigger>
               <TabsTrigger value="auth">Autenticação</TabsTrigger>
