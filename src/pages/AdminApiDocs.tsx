@@ -142,10 +142,10 @@ export default function AdminApiDocs() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="users" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-gray-300 dark:bg-gray-700 p-1">
-              <TabsTrigger value="users" className="py-3">Usuários</TabsTrigger>
-              <TabsTrigger value="files" className="py-3">Arquivos</TabsTrigger>
-              <TabsTrigger value="auth" className="py-3">Autenticação</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 bg-gray-300 dark:bg-gray-700 p-4">
+              <TabsTrigger value="users">Usuários</TabsTrigger>
+              <TabsTrigger value="files">Arquivos</TabsTrigger>
+              <TabsTrigger value="auth">Autenticação</TabsTrigger>
             </TabsList>
             
             <TabsContent value="users" className="mt-6">
