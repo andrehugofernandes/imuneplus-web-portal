@@ -256,6 +256,7 @@ export function FileEditForm({ onClose, onSubmit, editData }: FileEditFormProps)
                 onDrop={handleDrop}
               >
                 <input
+                aria-label='Substituir Arquivo'
                   type="file"
                   onChange={handleFileChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"

@@ -242,6 +242,7 @@ export function FileUploadForm({ onClose, onSubmit }: FileUploadFormProps) {
                 onDrop={handleDrop}
               >
                 <input
+                aria-label='Arquivo'
                   type="file"
                   onChange={handleFileChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"

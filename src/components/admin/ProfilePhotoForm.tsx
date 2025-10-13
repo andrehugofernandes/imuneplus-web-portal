@@ -177,6 +177,7 @@ export function ProfilePhotoForm({ onClose, onSubmit }: ProfilePhotoFormProps) {
               </div>
 
               <input
+              aria-label='Foto'
                 ref={fileInputRef}
                 type="file"
                 onChange={handleFileChange}

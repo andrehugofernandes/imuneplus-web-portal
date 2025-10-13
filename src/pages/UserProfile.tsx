@@ -105,6 +105,7 @@ export default function UserProfile() {
                 Nome Completo
               </label>
               <input
+              aria-label='Nome Completo'
                 type="text"
                 value={formData.full_name}
                 onChange={(e) => handleInputChange('full_name', e.target.value)}
@@ -124,6 +125,7 @@ export default function UserProfile() {
                 Email
               </label>
               <input
+              aria-label='Email'
                 type="email"
                 value={user?.email || ''}
                 disabled
@@ -157,6 +159,7 @@ export default function UserProfile() {
                 Função
               </label>
               <input
+              aria-label='Função'
                 type="text"
                 value={profile?.role || 'USER'}
                 disabled
@@ -190,6 +193,7 @@ export default function UserProfile() {
                 Departamento
               </label>
               <select 
+              aria-label='Departamento'
                 value={formData.department}
                 onChange={(e) => handleInputChange('department', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
