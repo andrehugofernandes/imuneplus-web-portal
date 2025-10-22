@@ -13,9 +13,16 @@ import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/
 import { useTheme } from '@/contexts/ThemeContext';
 import { Badge } from '@/components/ui/badge';
 
+interface ScheduleFormData {
+  date?: Date;
+  time: string;
+  title: string;
+  description: string;
+}
+
 interface ScheduleFormProps {
   onClose: () => void;
-  onSubmit?: (data: any) => void;
+  onSubmit?: (data: ScheduleFormData) => void;
 }
 
 export function ScheduleForm({ onClose, onSubmit }: ScheduleFormProps) {
@@ -46,10 +53,7 @@ export function ScheduleForm({ onClose, onSubmit }: ScheduleFormProps) {
       <SheetContent className="w-full sm:max-w-md overflow-y-auto p-0">
         <div 
           className="flex items-center justify-between w-full p-6"
-          style={{ 
-            backgroundColor: themeColors.primary,
-            color: textColor,
-          }}
+          style={{ backgroundColor: themeColors.primary, color: textColor }}
         >
           <div className="flex items-center space-x-3">
             <Badge 
