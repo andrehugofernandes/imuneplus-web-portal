@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, Search, Sun, Moon, Menu, User, Settings, LogOut, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,10 +20,61 @@ interface AdminHeaderProps {
   onToggleSidebar: () => void;
 }
 
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  createdAt: string;
+  isRead: boolean;
+}
+
 export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notificationCount, setNotificationCount] = useState(0);
   const { themeColors, isLightColor, currentTheme, setTheme, isDarkMode, toggleDarkMode, availableThemes } = useTheme();
+
+  // Buscar notificações do backend
+  useEffect(() => {
+    loadNotifications();
+    loadNotificationCount();
+    
+    // Atualizar a cada 30 segundos
+    const interval = setInterval(() => {
+      loadNotificationCount();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications?limit=5', {
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data.notifications || []);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar notificações:', error);
+    }
+  };
+
+  const loadNotificationCount = async () => {
+    try {
+      const res = await fetch('/api/notifications/count', {
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setNotificationCount(data.count || 0);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar contador:', error);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,11 +83,16 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
     setSearchTerm('');
   };
 
-  const notifications = [
-    { id: 1, title: 'Novo usuário cadastrado', time: '5 min atrás' },
-    { id: 2, title: 'Upload de documento concluído', time: '10 min atrás' },
-    { id: 3, title: 'Sistema atualizado', time: '1 hora atrás' },
-  ];
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000 / 60); // minutos
+    
+    if (diff < 1) return 'agora';
+    if (diff < 60) return `${diff} min atrás`;
+    if (diff < 1440) return `${Math.floor(diff / 60)} h atrás`;
+    return `${Math.floor(diff / 1440)} dias atrás`;
+  };
 
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
@@ -128,25 +184,39 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                onClick={loadNotifications}
+              >
                 <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white">
-                  3
-                </Badge>
+                {notificationCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white">
+                    {notificationCount > 9 ? '9+' : notificationCount}
+                  </Badge>
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <DropdownMenuLabel className="text-gray-900 dark:text-white">Notificações</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {notifications.map((notification) => (
-                <DropdownMenuItem 
-                  key={notification.id} 
-                  className="flex flex-col items-start p-4 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <span className="font-medium text-gray-900 dark:text-white">{notification.title}</span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">{notification.time}</span>
-                </DropdownMenuItem>
-              ))}
+              {notifications.length === 0 ? (
+                <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                  Nenhuma notificação
+                </div>
+              ) : (
+                notifications.map((notification) => (
+                  <DropdownMenuItem 
+                    key={notification.id} 
+                    className="flex flex-col items-start p-4 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <span className="font-medium text-gray-900 dark:text-white">{notification.title}</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">{notification.message}</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 mt-1">{formatTime(notification.createdAt)}</span>
+                  </DropdownMenuItem>
+                ))
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-center text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                 Ver todas as notificações
