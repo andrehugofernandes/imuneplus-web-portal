@@ -50,29 +50,40 @@ export function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
 
   const loadNotifications = async () => {
     try {
+      console.log('[Notifications] Buscando notificações...');
       const res = await fetch('/api/notifications?limit=5', {
         credentials: 'include',
       });
+      console.log('[Notifications] Response status:', res.status);
       if (res.ok) {
         const data = await res.json();
+        console.log('[Notifications] Dados recebidos:', data);
+        console.log('[Notifications] Total de notificações:', data.notifications?.length || 0);
         setNotifications(data.notifications || []);
+      } else {
+        console.error('[Notifications] Erro na resposta:', res.status, res.statusText);
       }
     } catch (error) {
-      console.error('Erro ao carregar notificações:', error);
+      console.error('[Notifications] Erro ao carregar notificações:', error);
     }
   };
 
   const loadNotificationCount = async () => {
     try {
+      console.log('[Notifications] Buscando contador...');
       const res = await fetch('/api/notifications/count', {
         credentials: 'include',
       });
+      console.log('[Notifications] Count response status:', res.status);
       if (res.ok) {
         const data = await res.json();
+        console.log('[Notifications] Contador recebido:', data);
         setNotificationCount(data.count || 0);
+      } else {
+        console.error('[Notifications] Erro no contador:', res.status, res.statusText);
       }
     } catch (error) {
-      console.error('Erro ao carregar contador:', error);
+      console.error('[Notifications] Erro ao carregar contador:', error);
     }
   };
 
